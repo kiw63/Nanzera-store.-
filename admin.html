@@ -1,88 +1,135 @@
 <!doctype html>
 <html lang="id">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Nanzera Store — Admin Panel</title><link rel="stylesheet" href="style.css"></head>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nanzera Store — Admin Panel</title>
+<link rel="stylesheet" href="style.css">
+<style>
+:root{--bg:#090a0d;--panel:#11141a;--line:#272d38;--text:#f5f7fb;--muted:#8992a3;--accent:#b6ff55;--ok:#45e4a0;--warn:#ffd166;--bad:#ff6876}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#1b2230,#090a0d 42%);color:var(--text);font-family:Inter,system-ui,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}
+.shell{min-height:100vh}.side{position:fixed;inset:0 auto 0 0;width:245px;background:#0d0f14;border-right:1px solid var(--line);padding:20px 14px;z-index:5}.brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.08em;padding:5px 10px 25px}.mark{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#eaffbf,#72df20);color:#10150b}.brand small{display:block;color:var(--muted);font-size:9px;letter-spacing:.2em;margin-top:3px}.navtitle{color:#626b7b;font-size:9px;letter-spacing:.18em;margin:12px 10px 7px}.navbtn{width:100%;border:0;background:transparent;color:#aeb6c5;text-align:left;border-radius:10px;padding:12px;margin:2px 0}.navbtn:hover,.navbtn.active{background:#1b2029;color:#fff}.navbtn.active{box-shadow:inset 3px 0 var(--accent)}#logout{position:absolute;bottom:18px;left:14px;width:calc(100% - 28px)}
+.main{margin-left:245px;padding:25px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.eyebrow{color:var(--accent);font-size:10px;font-weight:900;letter-spacing:.18em}h1{margin:5px 0;font-size:30px}.user{color:var(--muted);font-size:12px}
+.view{display:none}.view.active{display:block}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.card{background:linear-gradient(145deg,#151820,#0f1116);border:1px solid var(--line);border-radius:16px;padding:18px}.label{font-size:11px;color:var(--muted)}.value{font-size:28px;font-weight:900;margin-top:8px}
+.grid{display:grid;grid-template-columns:1.4fr 1fr;gap:13px;margin-top:13px}.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.head h3{margin:0;font-size:15px}.pill{display:inline-block;padding:5px 8px;border-radius:999px;font-size:9px;font-weight:900}.ok{background:#123a2a;color:var(--ok)}.warn{background:#3b3017;color:var(--warn)}.bad{background:#401a20;color:var(--bad)}.neutral{background:#222833;color:#b6bfce}
+.chart{height:220px;display:flex;gap:8px;align-items:end}.bar{flex:1;min-height:3px;border-radius:6px 6px 2px 2px;background:linear-gradient(#b6ff55,#5eb921)}.labels{display:flex;gap:8px;color:#667082;font-size:9px}.labels span{flex:1;text-align:center}.recent{display:grid;gap:8px;max-height:270px;overflow:auto}.recent>div{background:#0c0f14;border:1px solid #202530;border-radius:10px;padding:10px}.recent small{display:block;color:var(--muted);margin-top:3px}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:13px}.input,.select,.textarea{background:#0c0f14;color:#fff;border:1px solid #2b313d;border-radius:9px;padding:10px 11px;outline:none}.input:focus,.select:focus{border-color:#6d864d}.btn{border:1px solid #303744;background:#191d25;color:#fff;border-radius:9px;padding:10px 13px}.btn.primary{background:var(--accent);border-color:var(--accent);color:#0b0f08;font-weight:900}.btn.danger{color:#ff8b96}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:13px}.table{width:100%;min-width:800px;border-collapse:collapse}.table th,.table td{padding:12px;border-bottom:1px solid #20252e;text-align:left;font-size:12px}.table th{font-size:9px;color:#687183;letter-spacing:.1em}.table tr:last-child td{border:0}.thumb{width:40px;height:40px;object-fit:contain;background:#181c23;border-radius:9px;vertical-align:middle;margin-right:8px}
+.modal,.login{position:fixed;inset:0;background:#000b;display:none;place-items:center;padding:16px;z-index:20}.modal.open,.login.open{display:grid}.modalbox,.loginbox{width:min(620px,100%);max-height:92vh;overflow:auto;background:#11141a;border:1px solid #303744;border-radius:18px;padding:20px}.loginbox{width:min(420px,100%)}.form{display:grid;grid-template-columns:1fr 1fr;gap:11px}.field label{display:block;color:var(--muted);font-size:10px;margin-bottom:5px}.full{grid-column:1/-1}.msg{font-size:12px;color:#ff7d89;min-height:18px;margin:10px 0}.actions{display:flex;gap:7px;justify-content:flex-end;flex-wrap:wrap}.empty{text-align:center;color:var(--muted);padding:28px}.toast{position:fixed;right:18px;bottom:18px;background:#171c24;border:1px solid #343b48;padding:11px 14px;border-radius:10px;display:none;z-index:50;font-size:12px}.toast.show{display:block}
+@media(max-width:900px){.side{width:68px;padding:15px 7px}.brand span:not(.mark),.navbtn span:last-child,.navtitle{display:none}.navbtn{text-align:center}.main{margin-left:68px}.stats{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}}@media(max-width:600px){.main{padding:14px}.form{grid-template-columns:1fr}.full{grid-column:auto}h1{font-size:24px}}
+</style>
+</head>
 <body>
-<div id="loginScreen" class="login-screen"><div class="login-box"><div class="brand"><span class="brand-mark">N</span><span>NANZERA <small>ADMIN PANEL</small></span></div><h1>Admin Login</h1><p class="muted">Masuk menggunakan akun Firebase Authentication admin.</p><div class="field"><label>Email</label><input id="loginEmail" type="email"></div><div class="field"><label>Password</label><input id="loginPassword" type="password"></div><button class="btn btn-primary" style="width:100%" id="loginBtn">LOGIN</button><p id="loginMsg" class="muted"></p></div></div>
 
-<div id="app" class="admin-layout hidden">
-<aside id="sidebar" class="sidebar"><div class="brand"><span class="brand-mark">N</span><span>NANZERA <small>ADMIN</small></span></div>
-<nav class="side-nav"><button class="active" data-page="dashboard">⌂ Dashboard</button><button data-page="products">▣ Produk</button><button data-page="transactions">▤ Pesanan / Transaksi</button><button data-page="payments">▣ Pembayaran</button><button data-page="customers">♙ Pelanggan</button><button data-page="resellers">♙ Reseller</button><button data-page="settings">⚙ Pengaturan</button><button data-page="account">◉ Admin & Akun</button><button id="logoutBtn">↪ Logout</button></nav></aside>
+<div id="login" class="login open">
+<div class="loginbox">
+<div class="brand"><span class="mark">N</span><span>NANZERA <small>STORE ADMIN</small></span></div>
+<div class="eyebrow">SECURE ADMIN ACCESS</div><h1>Dashboard Admin</h1>
+<p style="color:var(--muted);font-size:12px">Login memakai Firebase Authentication.</p>
+<div class="field"><label>EMAIL</label><input id="email" class="input" style="width:100%" type="email"></div>
+<div class="field" style="margin-top:11px"><label>PASSWORD</label><input id="password" class="input" style="width:100%" type="password"></div>
+<div id="loginMsg" class="msg"></div><button id="loginBtn" class="btn primary" style="width:100%">LOGIN ADMIN</button>
+</div></div>
 
-<section class="admin-main"><header class="admin-top"><button class="btn mobile-menu" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button><div><b id="pageTitle">Dashboard</b><div class="muted" style="font-size:10px">Firebase Realtime</div></div><div id="adminEmail" class="muted"></div></header>
-<div class="admin-content">
-<section id="page-dashboard" class="page">
-<div class="stat-grid"><div class="stat"><span class="muted">Total Pesanan</span><div id="statTotal" class="value">0</div><div class="delta">REAL-TIME</div></div><div class="stat"><span class="muted">Menunggu Pembayaran</span><div id="statPay" class="value">0</div><div class="delta">LIVE</div></div><div class="stat"><span class="muted">Proses Trade</span><div id="statTrade" class="value">0</div><div class="delta">LIVE</div></div><div class="stat"><span class="muted">Selesai</span><div id="statDone" class="value">0</div><div class="delta">LIVE</div></div></div>
-<div class="admin-grid"><div class="panel"><h3>Grafik Penjualan</h3><div id="salesChart" class="chart"></div><div class="muted" style="font-size:10px;margin-top:8px">7 hari terakhir • otomatis berubah ketika transaksi berubah</div></div><div class="panel"><h3>Metode Pembayaran</h3><div class="donut"></div><div id="paymentLegend" class="legend"></div></div></div>
-<div class="panel" style="margin-top:14px"><div style="display:flex;justify-content:space-between;align-items:center"><h3>Pesanan Terbaru</h3><button class="btn" onclick="showPage('transactions')">Lihat Semua</button></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Invoice</th><th>Pelanggan</th><th>Produk</th><th>Total</th><th>Pembayaran</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="recentRows"></tbody></table></div></div>
-</section>
+<aside class="side">
+<div class="brand"><span class="mark">N</span><span>NANZERA <small>ADMIN PANEL</small></span></div>
+<div class="navtitle">MANAGEMENT</div>
+<button class="navbtn active" data-view="dashboard">▦ <span>Dashboard</span></button>
+<button class="navbtn" data-view="products">◆ <span>Produk</span></button>
+<button class="navbtn" data-view="orders">↗ <span>Transaksi</span></button>
+<button class="navbtn" data-view="customers">◎ <span>Pelanggan</span></button>
+<button class="navbtn" data-view="reseller">◇ <span>Reseller</span></button>
+<div class="navtitle">SYSTEM</div><button class="navbtn" data-view="settings">⚙ <span>Pengaturan</span></button>
+<button id="logout" class="navbtn">↪ <span>Keluar</span></button>
+</aside>
 
-<section id="page-products" class="page hidden"><div class="section-head"><div><div class="eyebrow">REAL-TIME PRODUCTS</div><h2 class="section-title">Kelola Produk</h2></div><button class="btn btn-primary" onclick="newProduct()">+ Tambah Produk</button></div><div id="adminProducts" class="product-admin-grid"></div></section>
+<main class="main">
+<div class="top"><div><div class="eyebrow">NANZERA STORE / ADMIN</div><h1 id="title">Dashboard</h1></div><div class="user" id="user">-</div></div>
 
-<section id="page-transactions" class="page hidden"><div class="section-head"><div><div class="eyebrow">REAL-TIME ORDERS</div><h2 class="section-title">Pesanan / Transaksi</h2></div><div class="search"><input id="txSearch" placeholder="Cari invoice/username..." oninput="renderTransactions()"></div></div><div class="panel table-wrap"><table class="data-table"><thead><tr><th>Invoice</th><th>Pelanggan</th><th>Produk</th><th>Total</th><th>Status</th><th>Jadwal</th><th>Aksi</th></tr></thead><tbody id="txRows"></tbody></table></div></section>
+<section id="dashboard" class="view active">
+<div class="stats">
+<div class="card"><div class="label">TOTAL PRODUK</div><div class="value" id="sProducts">0</div></div>
+<div class="card"><div class="label">TOTAL ORDER</div><div class="value" id="sOrders">0</div></div>
+<div class="card"><div class="label">MENUNGGU PEMBAYARAN</div><div class="value" id="sWaiting">0</div></div>
+<div class="card"><div class="label">SELESAI</div><div class="value" id="sDone">0</div></div>
+</div>
+<div class="grid">
+<div class="card"><div class="head"><h3>Transaksi 7 Hari</h3><span class="pill ok">LIVE</span></div><div id="chart" class="chart"></div><div id="labels" class="labels"></div></div>
+<div class="card"><div class="head"><h3>Order Terbaru</h3><span id="count" class="pill neutral">0</span></div><div id="recent" class="recent"></div></div>
+</div></section>
 
-<section id="page-payments" class="page hidden"><div class="section-head"><div><div class="eyebrow">PAYMENT MONITOR</div><h2 class="section-title">Pembayaran</h2></div></div><div class="panel table-wrap"><table class="data-table"><thead><tr><th>Invoice</th><th>Metode</th><th>Total</th><th>Status Pembayaran</th><th>Aksi</th></tr></thead><tbody id="payRows"></tbody></table></div></section>
+<section id="products" class="view"><div class="card">
+<div class="head"><h3>Produk</h3><button id="addProduct" class="btn primary">+ TAMBAH PRODUK</button></div>
+<div class="toolbar"><input id="pSearch" class="input" placeholder="Cari produk..."><select id="pFilter" class="select"><option>ALL</option><option>MYTHICAL</option><option>LEGENDARY</option><option>LIMITED</option></select></div>
+<div class="tablewrap"><table class="table"><thead><tr><th>PRODUK</th><th>KATEGORI</th><th>HARGA</th><th>STOK</th><th>AKSI</th></tr></thead><tbody id="pTable"></tbody></table></div>
+</div></section>
 
-<section id="page-customers" class="page hidden"><div class="section-head"><div><div class="eyebrow">CUSTOMERS</div><h2 class="section-title">Pelanggan</h2></div></div><div class="panel table-wrap"><table class="data-table"><thead><tr><th>Roblox</th><th>Email</th><th>Pesanan</th><th>Total Belanja</th></tr></thead><tbody id="customerRows"></tbody></table></div></section>
+<section id="orders" class="view"><div class="card">
+<div class="head"><h3>Transaksi Realtime</h3><span class="pill ok">FIRESTORE LIVE</span></div>
+<div class="toolbar"><input id="oSearch" class="input" placeholder="Invoice / Roblox..."><select id="oFilter" class="select"><option value="ALL">Semua status</option><option value="WAITING_PAYMENT">Menunggu Pembayaran</option><option value="PAYMENT_CONFIRMED">Sudah Dibayar</option><option value="WAITING_SCHEDULE">Menunggu Jadwal</option><option value="SCHEDULE_CONFIRMED">Jadwal Dikonfirmasi</option><option value="TRADING">Proses Trade</option><option value="COMPLETED">Selesai</option><option value="CANCELLED">Dibatalkan</option></select></div>
+<div class="tablewrap"><table class="table"><thead><tr><th>INVOICE</th><th>PELANGGAN</th><th>PRODUK</th><th>TOTAL</th><th>PEMBAYARAN</th><th>STATUS</th><th></th></tr></thead><tbody id="oTable"></tbody></table></div>
+</div></section>
 
-<section id="page-resellers" class="page hidden"><div class="panel"><div class="eyebrow">RESELLER</div><h2 class="section-title">Reseller</h2><p class="muted">Area ini disiapkan untuk pengelolaan reseller. Data reseller dapat ditambahkan setelah struktur harga reseller ditentukan.</p></div></section>
+<section id="customers" class="view"><div class="card"><h3>Pelanggan</h3><div id="customersTable" class="tablewrap" style="margin-top:13px"></div></div></section>
+<section id="reseller" class="view"><div class="card"><div class="eyebrow">RESELLER</div><h3>Reseller</h3><p style="color:var(--muted);font-size:12px">Kontak reseller: +62 851-3479-3273</p><a class="btn primary" target="_blank" href="https://wa.me/6285134793273?text=Halo%20Nanzera%20Store%2C%20saya%20ingin%20informasi%20reseller.">WhatsApp Reseller</a></div></section>
+<section id="settings" class="view"><div class="card"><div class="eyebrow">SYSTEM</div><h3>Pengaturan</h3><p style="color:var(--muted);font-size:12px">Pembayaran saat ini menggunakan QRIS DANA Bisnis dengan verifikasi manual admin. Jangan konfirmasi sebelum dana benar-benar masuk.</p></div></section>
+</main>
 
-<section id="page-settings" class="page hidden"><div class="panel"><div class="eyebrow">STORE SETTINGS</div><h2 class="section-title">Pengaturan</h2><div class="form-grid"><div class="field"><label>Nama toko</label><input id="storeName" value="Nanzera Store"></div><div class="field"><label>Zona waktu</label><select><option>Asia/Jakarta (WIB)</option><option>Asia/Makassar (WITA)</option><option>Asia/Jayapura (WIT)</option></select></div></div><p class="muted" style="font-size:11px;margin-top:15px">Pengaturan tampilan publik dapat dikembangkan ke collection settings di Firebase.</p></div></section>
+<div id="productModal" class="modal"><div class="modalbox">
+<div class="head"><h3 id="modalTitle">Tambah Produk</h3><button class="btn" id="closeProduct">✕</button></div>
+<div class="form">
+<div class="field"><label>ID PRODUK</label><input id="pid" class="input" placeholder="kitsune"></div>
+<div class="field"><label>NAMA</label><input id="pname" class="input" placeholder="Kitsune Fruit"></div>
+<div class="field"><label>HARGA</label><input id="price" class="input" type="number"></div>
+<div class="field"><label>STOK</label><input id="stock" class="input" type="number"></div>
+<div class="field"><label>KATEGORI</label><select id="category" class="select"><option>MYTHICAL</option><option>LEGENDARY</option><option>LIMITED</option></select></div>
+<div class="field"><label>POPULAR</label><select id="popular" class="select"><option value="false">Tidak</option><option value="true">Ya</option></select></div>
+<div class="field full"><label>IMAGE URL</label><input id="image" class="input" style="width:100%" placeholder="https://..."></div>
+<div class="field full"><label>DESKRIPSI</label><textarea id="desc" class="textarea" style="width:100%"></textarea></div>
+</div><div id="productMsg" class="msg"></div><div class="actions"><button class="btn" id="cancelProduct">Batal</button><button class="btn primary" id="saveProduct">Simpan</button></div>
+</div></div>
 
-<section id="page-account" class="page hidden"><div class="panel"><div class="eyebrow">AUTHENTICATION</div><h2 class="section-title">Admin & Akun</h2><p>Email login: <b id="accountEmail"></b></p><p class="muted">Authentication menggunakan Firebase Auth. Jangan membagikan password admin.</p></div></section>
-</div></section></div>
-
-<div id="productModal" class="hidden" style="position:fixed;inset:0;background:#000b;z-index:90;display:grid;place-items:center;padding:16px"><div class="panel" style="width:min(600px,100%)"><h2 id="productModalTitle">Produk</h2><div class="form-grid"><div class="field"><label>ID Produk</label><input id="pId"></div><div class="field"><label>Nama</label><input id="pName"></div><div class="field"><label>Harga</label><input id="pPrice" type="number"></div><div class="field"><label>Stok</label><input id="pStock" type="number"></div><div class="field"><label>Kategori</label><select id="pCategory"><option>MYTHICAL</option><option>LEGENDARY</option><option>LIMITED</option></select></div><div class="field"><label>Image URL (opsional)</label><input id="pImage"></div></div><div class="field" style="margin-top:12px"><label>Deskripsi</label><textarea id="pDescription"></textarea></div><div style="display:flex;gap:8px;margin-top:15px"><button class="btn btn-primary" onclick="saveProduct()">Simpan</button><button class="btn" onclick="closeProduct()">Batal</button></div></div></div>
-<div id="txModal" class="hidden" style="position:fixed;inset:0;background:#000b;z-index:90;display:grid;place-items:center;padding:16px"><div class="panel" style="width:min(620px,100%);max-height:90vh;overflow:auto"><h2>Kelola Transaksi</h2><div id="txDetail"></div><div class="form-grid"><div class="field"><label>Status</label><select id="txStatus"><option>WAITING_PAYMENT</option><option>PAYMENT_CONFIRMED</option><option>WAITING_SCHEDULE</option><option>SCHEDULE_CONFIRMED</option><option>TRADING</option><option>COMPLETED</option><option>CANCELLED</option></select></div><div class="field"><label>Status Pembayaran</label><select id="txPayStatus"><option>UNPAID</option><option>PAID</option><option>FAILED</option><option>REFUNDED</option></select></div><div class="field"><label>Jadwal Trade</label><input id="txSchedule" placeholder="Contoh: 18:00 - 22:00 WIB"></div><div class="field"><label>Kode Transaksi / Redeem</label><input id="txRedeem"></div></div><div class="field" style="margin-top:12px"><label>Catatan Admin</label><textarea id="txNote"></textarea></div><div style="display:flex;gap:8px;margin-top:15px"><button class="btn btn-primary" onclick="saveTx()">Update</button><button class="btn" onclick="closeTx()">Batal</button></div></div></div>
-<div id="toast" class="toast hidden"></div>
+<div id="orderModal" class="modal"><div class="modalbox">
+<div class="head"><h3>Kelola Transaksi</h3><button class="btn" id="closeOrder">✕</button></div><div id="orderDetail"></div>
+</div></div><div id="toast" class="toast"></div>
 
 <script type="module">
-import {watchAuth,loginAdmin,logoutAdmin,watchProducts,watchTransactions,createProduct,updateProduct,deleteProduct} from "./database.js";
-let products=[],transactions=[],editingProduct=null,editingTx=null;
+import {auth,loginAdmin,logoutAdmin,watchAuth,getProducts,createProduct,updateProduct,deleteProduct} from "./database.js";
+import {getFirestore,collection,onSnapshot,query,orderBy,doc,updateDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
+const db=getFirestore();let products=[],orders=[],editId=null;
 const money=n=>new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(Number(n)||0);
 const safe=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-const label={WAITING_PAYMENT:"Menunggu Pembayaran",PAYMENT_CONFIRMED:"Pembayaran Dikonfirmasi",WAITING_SCHEDULE:"Menunggu Jadwal",SCHEDULE_CONFIRMED:"Jadwal Dikonfirmasi",TRADING:"Proses Trade",COMPLETED:"Selesai",CANCELLED:"Dibatalkan"};
-const cls={WAITING_PAYMENT:"s-wait",PAYMENT_CONFIRMED:"s-process",WAITING_SCHEDULE:"s-wait",SCHEDULE_CONFIRMED:"s-process",TRADING:"s-process",COMPLETED:"s-done",CANCELLED:"s-cancel"};
+const labels={WAITING_PAYMENT:"Menunggu Pembayaran",PAYMENT_CONFIRMED:"Sudah Dibayar",WAITING_SCHEDULE:"Menunggu Jadwal",SCHEDULE_CONFIRMED:"Jadwal Dikonfirmasi",TRADING:"Proses Trade",COMPLETED:"Selesai",CANCELLED:"Dibatalkan"};
+const pill=s=>`<span class="pill ${s==="COMPLETED"||s==="PAYMENT_CONFIRMED"?"ok":s==="CANCELLED"?"bad":s==="WAITING_PAYMENT"?"warn":"neutral"}>${safe(labels[s]||s||"-")}</span>`;
+const toast=m=>{let x=document.getElementById("toast");x.textContent=m;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),2400)};
 
-function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.remove("hidden");setTimeout(()=>t.classList.add("hidden"),2600)}
-function renderAll(){renderStats();renderChart();renderPayments();renderCustomers();renderTransactions();renderRecent();renderProducts()}
-function renderStats(){
- document.getElementById("statTotal").textContent=transactions.length;
- document.getElementById("statPay").textContent=transactions.filter(x=>x.status==="WAITING_PAYMENT").length;
- document.getElementById("statTrade").textContent=transactions.filter(x=>["WAITING_SCHEDULE","SCHEDULE_CONFIRMED","TRADING"].includes(x.status)).length;
- document.getElementById("statDone").textContent=transactions.filter(x=>x.status==="COMPLETED").length;
-}
-function dateKey(ts){if(!ts)return null;const d=ts.toDate?ts.toDate():new Date(ts);return d.toISOString().slice(0,10)}
-function renderChart(){
- const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d.toISOString().slice(0,10))}
- const vals=days.map(k=>transactions.filter(t=>dateKey(t.created_at)===k&&t.status!=="CANCELLED").reduce((s,t)=>s+Number(t.total_price||0),0));
- const max=Math.max(...vals,1);document.getElementById("salesChart").innerHTML=vals.map((v,i)=>`<div class="bar" style="height:${Math.max(4,v/max*88)}%"><span>${v?Math.round(v/1000)+"k":"0"}</span></div>`).join("");
-}
-function renderPayments(){
- const counts={QRIS:0,DANA:0,OVO:0,GOPAY:0};transactions.forEach(t=>{const k=String(t.payment_method||"QRIS").toUpperCase();if(counts[k]!==undefined)counts[k]++});
- const total=Math.max(1,Object.values(counts).reduce((a,b)=>a+b,0));document.getElementById("paymentLegend").innerHTML=Object.entries(counts).map(([k,v])=>`<div class="dotlabel"><span><i></i>${k}</span><b>${Math.round(v/total*100)}%</b></div>`).join("");
-}
-function renderRecent(){document.getElementById("recentRows").innerHTML=transactions.slice().sort((a,b)=>String(b.invoice_id).localeCompare(String(a.invoice_id))).slice(0,7).map(row=>`<tr><td>${safe(row.invoice_id)}</td><td>${safe(row.roblox_username)}</td><td>${safe(row.product_name)}</td><td>${money(row.total_price)}</td><td>${safe(row.payment_status)}</td><td><span class="status-pill ${cls[row.status]||"s-wait"}">${safe(label[row.status]||row.status)}</span></td><td><button class="btn" onclick='window.openTx(${JSON.stringify(row.invoice_id)})'>Detail</button></td></tr>`).join("")}
-window.renderTransactions=()=>{const q=(document.getElementById("txSearch")?.value||"").toLowerCase();document.getElementById("txRows").innerHTML=transactions.filter(t=>`${t.invoice_id} ${t.roblox_username} ${t.product_name}`.toLowerCase().includes(q)).map(row=>`<tr><td>${safe(row.invoice_id)}</td><td>${safe(row.roblox_username)}<br><span class="muted">${safe(row.customer_email)}</span></td><td>${safe(row.product_name)}</td><td>${money(row.total_price)}</td><td><span class="status-pill ${cls[row.status]||"s-wait"}">${safe(label[row.status]||row.status)}</span></td><td>${safe(row.trade_schedule||"-")}</td><td><button class="btn" onclick='window.openTx(${JSON.stringify(row.invoice_id)})'>Kelola</button></td></tr>`).join("")}
-function renderProducts(){document.getElementById("adminProducts").innerHTML=products.map(p=>`<div class="admin-product"><h4>${safe(p.name)}</h4><div class="muted">${safe(p.category||"")}</div><p>Harga: <b>${money(p.price)}</b><br>Stok: <b>${Number(p.stock||0)}</b></p><div class="actions"><button class="btn" onclick='window.editProduct(${JSON.stringify(p.id)})'>Edit</button><button class="btn btn-danger" onclick='window.removeProduct(${JSON.stringify(p.id)})'>Hapus</button></div></div>`).join("")}
-function renderCustomers(){const map={};transactions.forEach(t=>{const k=t.customer_email||t.roblox_username||"unknown";map[k]??={name:t.roblox_username||"-",email:t.customer_email||"-",count:0,total:0};map[k].count++;map[k].total+=Number(t.total_price||0)});document.getElementById("customerRows").innerHTML=Object.values(map).map(x=>`<tr><td>${safe(x.name)}</td><td>${safe(x.email)}</td><td>${x.count}</td><td>${money(x.total)}</td></tr>`).join("")}
+watchAuth(async u=>{if(u){document.getElementById("login").classList.remove("open");document.getElementById("user").textContent=u.email||"Admin";await loadProducts();startOrders()}else document.getElementById("login").classList.add("open")});
+document.getElementById("loginBtn").onclick=async()=>{let e=document.getElementById("email").value.trim(),p=document.getElementById("password").value,m=document.getElementById("loginMsg");m.textContent="";if(!e||!p){m.textContent="Isi email dan password.";return}let r=await loginAdmin(e,p);if(!r.success)m.textContent=r.error};
+document.getElementById("logout").onclick=()=>logoutAdmin();
 
-window.showPage=(name)=>{document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));document.getElementById("page-"+name).classList.remove("hidden");document.querySelectorAll(".side-nav button[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===name));document.getElementById("pageTitle").textContent=name==="dashboard"?"Dashboard":name[0].toUpperCase()+name.slice(1);document.getElementById("sidebar").classList.remove("open")};
-document.querySelectorAll(".side-nav button[data-page]").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+document.querySelectorAll(".navbtn[data-view]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".navbtn").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));document.getElementById(b.dataset.view).classList.add("active");document.getElementById("title").textContent=b.querySelector("span")?.textContent||b.textContent.trim()});
 
-window.newProduct=()=>{editingProduct=null;["pId","pName","pPrice","pStock","pImage","pDescription"].forEach(id=>document.getElementById(id).value="");document.getElementById("pCategory").value="MYTHICAL";document.getElementById("pId").disabled=false;document.getElementById("productModal").classList.remove("hidden")};
-window.editProduct=(id)=>{const p=products.find(x=>x.id===id);if(!p)return;editingProduct=p;document.getElementById("pId").value=p.id;document.getElementById("pId").disabled=true;document.getElementById("pName").value=p.name||"";document.getElementById("pPrice").value=p.price||0;document.getElementById("pStock").value=p.stock||0;document.getElementById("pCategory").value=p.category||"MYTHICAL";document.getElementById("pImage").value=p.image_url||"";document.getElementById("pDescription").value=p.description||"";document.getElementById("productModal").classList.remove("hidden")};
-window.closeProduct=()=>document.getElementById("productModal").classList.add("hidden");
-window.saveProduct=async()=>{const id=document.getElementById("pId").value.trim();if(!id)return toast("ID produk wajib diisi.");const data={name:document.getElementById("pName").value.trim(),price:Number(document.getElementById("pPrice").value||0),stock:Number(document.getElementById("pStock").value||0),category:document.getElementById("pCategory").value,image_url:document.getElementById("pImage").value.trim(),description:document.getElementById("pDescription").value.trim(),updated_at:new Date()};const r=editingProduct?await updateProduct(id,data):await createProduct(id,data);if(r.success){closeProduct();toast("Produk tersimpan di Firebase.");}else toast(r.error)};
-window.removeProduct=async(id)=>{if(!confirm("Hapus produk ini?"))return;const r=await deleteProduct(id);toast(r.success?"Produk dihapus.":r.error)};
+async function loadProducts(){try{products=await getProducts();renderProducts();stats()}catch(e){toast(e.message)}}
+function renderProducts(){let q=document.getElementById("pSearch").value.toLowerCase(),c=document.getElementById("pFilter").value,l=products.filter(p=>(c==="ALL"||p.category===c)&&String(p.name||"").toLowerCase().includes(q));document.getElementById("pTable").innerHTML=l.length?l.map(p=>`<tr><td><b>${safe(p.name)}</b><div style="color:var(--muted);font-size:10px">${safe(p.id)}</div></td><td>${safe(p.category)}</td><td>${money(p.price)}</td><td>${Number(p.stock||0)}</td><td><button class="btn" onclick="editProduct('${safe(p.id)}')">Edit</button> <button class="btn danger" onclick="delProduct('${safe(p.id)}')">Hapus</button></td></tr>`).join(""):'<tr><td colspan="5" class="empty">Belum ada produk.</td></tr>'}
+document.getElementById("pSearch").oninput=renderProducts;document.getElementById("pFilter").onchange=renderProducts;
 
-window.openTx=(id)=>{editingTx=transactions.find(t=>t.invoice_id===id);if(!editingTx)return;document.getElementById("txStatus").value=editingTx.status||"WAITING_PAYMENT";document.getElementById("txPayStatus").value=editingTx.payment_status||"UNPAID";document.getElementById("txSchedule").value=editingTx.trade_schedule||"";document.getElementById("txRedeem").value=editingTx.redeem_code||"";document.getElementById("txNote").value=editingTx.admin_note||"";document.getElementById("txDetail").innerHTML=`<p><b>${safe(editingTx.invoice_id)}</b><br>${safe(editingTx.product_name)} • ${safe(editingTx.roblox_username)} • ${money(editingTx.total_price)}</p>`;document.getElementById("txModal").classList.remove("hidden")};
-window.closeTx=()=>document.getElementById("txModal").classList.add("hidden");
-window.saveTx=async()=>{if(!editingTx)return;const data={status:document.getElementById("txStatus").value,payment_status:document.getElementById("txPayStatus").value,trade_schedule:document.getElementById("txSchedule").value.trim(),redeem_code:document.getElementById("txRedeem").value.trim(),admin_note:document.getElementById("txNote").value.trim(),updated_by:document.getElementById("adminEmail").textContent.trim()};const r=await import("./database.js").then(m=>m.updateTransaction(editingTx.invoice_id,data));if(r.success){closeTx();toast("Transaksi diperbarui real-time.");}else toast(r.error)};
+function openProduct(p){editId=p?.id||null;document.getElementById("modalTitle").textContent=editId?"Edit Produk":"Tambah Produk";document.getElementById("pid").value=p?.id||"";document.getElementById("pid").disabled=!!editId;document.getElementById("pname").value=p?.name||"";document.getElementById("price").value=p?.price??"";document.getElementById("stock").value=p?.stock??"";document.getElementById("category").value=p?.category||"MYTHICAL";document.getElementById("popular").value=String(!!p?.popular);document.getElementById("image").value=p?.image_url||"";document.getElementById("desc").value=p?.description||"";document.getElementById("productMsg").textContent="";document.getElementById("productModal").classList.add("open")}
+document.getElementById("addProduct").onclick=()=>openProduct();window.editProduct=id=>openProduct(products.find(p=>p.id===id));window.delProduct=async id=>{if(!confirm("Hapus produk ini?"))return;let r=await deleteProduct(id);if(!r.success)return toast(r.error);toast("Produk dihapus");loadProducts()};
+["closeProduct","cancelProduct"].forEach(id=>document.getElementById(id).onclick=()=>document.getElementById("productModal").classList.remove("open"));
+document.getElementById("saveProduct").onclick=async()=>{let id=document.getElementById("pid").value.trim(),d={name:document.getElementById("pname").value.trim(),price:Number(document.getElementById("price").value||0),stock:Number(document.getElementById("stock").value||0),category:document.getElementById("category").value,popular:document.getElementById("popular").value==="true",image_url:document.getElementById("image").value.trim(),description:document.getElementById("desc").value.trim()},m=document.getElementById("productMsg");if(!id||!d.name){m.textContent="ID dan nama wajib diisi.";return}let r=editId?await updateProduct(editId,d):await createProduct(id,d);if(!r.success){m.textContent=r.error;return}document.getElementById("productModal").classList.remove("open");toast("Produk tersimpan");loadProducts()};
 
-document.getElementById("loginBtn").onclick=async()=>{const r=await loginAdmin(document.getElementById("loginEmail").value.trim(),document.getElementById("loginPassword").value);document.getElementById("loginMsg").textContent=r.success?"Berhasil login.":r.error};
-document.getElementById("logoutBtn").onclick=()=>logoutAdmin();
-watchAuth(user=>{if(user){document.getElementById("loginScreen").classList.add("hidden");document.getElementById("app").classList.remove("hidden");document.getElementById("adminEmail").textContent=user.email||"";document.getElementById("accountEmail").textContent=user.email||"";watchProducts(data=>{products=data;renderAll()});watchTransactions(data=>{transactions=data;renderAll()});}else{document.getElementById("loginScreen").classList.remove("hidden");document.getElementById("app").classList.add("hidden")}});
+function startOrders(){let q=query(collection(db,"transactions"),orderBy("created_at","desc"));onSnapshot(q,s=>{orders=s.docs.map(d=>({id:d.id,...d.data()}));renderOrders();renderRecent();stats();chart();customers()},e=>toast("Realtime gagal: "+e.message))}
+function stats(){sProducts.textContent=products.length;sOrders.textContent=orders.length;sWaiting.textContent=orders.filter(o=>o.status==="WAITING_PAYMENT").length;sDone.textContent=orders.filter(o=>o.status==="COMPLETED").length;count.textContent=orders.length+" order"}
+function renderRecent(){recent.innerHTML=orders.slice(0,7).map(o=>`<div><b>${safe(o.invoice_id||o.id)}</b><small>${safe(o.product_name||"-")} • ${money(o.total_price)}</small>${pill(o.status)}</div>`).join("")||'<div class="empty">Belum ada transaksi.</div>'}
+function renderOrders(){let q=oSearch.value.toLowerCase(),f=oFilter.value,l=orders.filter(o=>(f==="ALL"||o.status===f)&&(!q||String(o.invoice_id+" "+o.roblox_username+" "+o.customer_email).toLowerCase().includes(q)));oTable.innerHTML=l.length?l.map(o=>`<tr><td><b>${safe(o.invoice_id||o.id)}</b></td><td>${safe(o.roblox_username||"-")}<div style="color:var(--muted);font-size:10px">${safe(o.customer_email||"-")}</div></td><td>${safe(o.product_name||"-")} × ${Number(o.qty||1)}</td><td>${money(o.total_price)}</td><td>${safe(o.payment_method||"-")}<br>${o.payment_status==="PAID"?'<span class="pill ok">SUDAH BAYAR</span>':'<span class="pill warn">BELUM BAYAR</span>'}</td><td>${pill(o.status)}</td><td><button class="btn primary" onclick="openOrder('${safe(o.id)}')">Kelola</button></td></tr>`).join(""):'<tr><td colspan="7" class="empty">Belum ada transaksi.</td></tr>'}
+oSearch.oninput=renderOrders;oFilter.onchange=renderOrders;
+
+window.openOrder=id=>{let o=orders.find(x=>x.id===id);if(!o)return;orderDetail.innerHTML=`<div class="card"><div class="head"><h3>${safe(o.invoice_id||o.id)}</h3>${pill(o.status)}</div><p style="font-size:12px">Produk: <b>${safe(o.product_name)}</b> × ${Number(o.qty||1)}<br>Total: <b>${money(o.total_price)}</b><br>Roblox: <b>${safe(o.roblox_username)}</b><br>Pembayaran: <b>${safe(o.payment_method||"-")}</b></p><div class="field"><label>JADWAL TRADE</label><input id="schedule" class="input" style="width:100%" value="${safe(o.trade_schedule||"")}" placeholder="18:00 - 22:00 WIB"></div><div class="field" style="margin-top:10px"><label>KODE TRANSAKSI</label><input id="redeem" class="input" style="width:100%" value="${safe(o.redeem_code||"")}"></div><div class="field" style="margin-top:10px"><label>STATUS</label><select id="newStatus" class="select" style="width:100%">${Object.entries(labels).map(([k,v])=>`<option value="${k}" ${o.status===k?"selected":""}>${v}</option>`).join("")}</select></div><div class="actions" style="margin-top:15px">${o.payment_status!=="PAID"?'<button class="btn primary" id="confirm">✓ KONFIRMASI PEMBAYARAN</button>':""}<button class="btn primary" id="saveOrder">SIMPAN PERUBAHAN</button></div><p style="font-size:10px;color:var(--muted);margin-top:12px">Konfirmasi pembayaran hanya setelah dana benar-benar masuk ke QRIS DANA Bisnis.</p></div>`;if(document.getElementById("confirm"))document.getElementById("confirm").onclick=async()=>{if(!confirm("Dana sudah benar-benar masuk?"))return;await updateDoc(doc(db,"transactions",id),{payment_status:"PAID",status:"PAYMENT_CONFIRMED",payment_confirmed_at:serverTimestamp(),last_updated:serverTimestamp()});toast("Pembayaran dikonfirmasi");document.getElementById("orderModal").classList.remove("open")};document.getElementById("saveOrder").onclick=async()=>{await updateDoc(doc(db,"transactions",id),{status:newStatus.value,trade_schedule:schedule.value.trim(),redeem_code:redeem.value.trim(),last_updated:serverTimestamp()});toast("Transaksi diperbarui");document.getElementById("orderModal").classList.remove("open")};document.getElementById("orderModal").classList.add("open")};
+document.getElementById("closeOrder").onclick=()=>document.getElementById("orderModal").classList.remove("open");
+
+function customers(){let m=new Map();orders.forEach(o=>{let k=o.customer_email||o.roblox_username||"-",x=m.get(k)||{r:o.roblox_username||"-",e:o.customer_email||"-",n:0,t:0};x.n++;x.t+=Number(o.total_price||0);m.set(k,x)});let a=[...m.values()];customersTable.innerHTML=a.length?`<table class="table"><thead><tr><th>ROBLOX</th><th>EMAIL</th><th>ORDER</th><th>TOTAL</th></tr></thead><tbody>${a.map(x=>`<tr><td>${safe(x.r)}</td><td>${safe(x.e)}</td><td>${x.n}</td><td>${money(x.t)}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">Belum ada pelanggan.</div>'}
+function chart(){let ds=[];for(let i=6;i>=0;i--){let d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-i);ds.push(d)}let c=ds.map(d=>orders.filter(o=>{let t=o.created_at?.toDate?o.created_at.toDate():new Date(o.created_at||0);return t.toDateString()===d.toDateString()}).length),mx=Math.max(1,...c);document.getElementById("chart").innerHTML=c.map(x=>`<div style="flex:1;height:100%;display:flex;align-items:end"><div class="bar" style="height:${Math.max(2,x/mx*100)}%;width:100%" title="${x} transaksi"></div></div>`).join("");document.getElementById("labels").innerHTML=ds.map(d=>`<span>${d.toLocaleDateString("id-ID",{weekday:"short"}).slice(0,3)}</span>`).join("")}
 </script>
-</body></html>
+</body>
+</html>
