@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nanzera Store — Blox Fruits Trade Center</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar"><div class="container inner">
+<a class="brand" href="#"><span class="brand-mark">N</span><span>NANZERA <small>STORE</small></span></a>
+<nav class="nav"><a class="active" href="#home">HOME</a><a href="#products">PRODUCTS</a><a href="#how">HOW IT WORKS</a><a href="#status">CEK TRANSAKSI</a><a href="#support">FAQ</a></nav>
+<button class="btn mobile-menu" onclick="document.querySelector('.nav').classList.toggle('mobile-open')">☰</button>
+</div></header>
+
+<main>
+<section id="home" class="hero"><div class="hero-art"><div class="orb o1"></div><div class="orb o2"></div></div>
+<div class="container"><div class="hero-copy"><div class="eyebrow">TRUSTED • FAST • SECURE</div>
+<h1>TRADE BLOX FRUITS<br><span>WITH CONFIDENCE</span></h1>
+<p>Nanzera Store adalah tempat untuk membeli item Blox Fruits dengan proses jelas, pembayaran dari website, dan status pesanan yang bisa dipantau.</p>
+<div class="trust-row"><div class="trust"><b>100% AMAN</b><span>Order tercatat di sistem</span></div><div class="trust"><b>REAL-TIME</b><span>Status pesanan langsung update</span></div><div class="trust"><b>TERPERCAYA</b><span>Support untuk pelanggan</span></div></div>
+<div class="hero-actions"><a class="btn btn-primary" href="#products">🛍 BROWSE PRODUCTS</a><a class="btn" href="#how">▶ HOW IT WORKS</a></div>
+</div></div></section>
+
+<section id="products" class="section"><div class="container">
+<div class="section-head"><div><div class="eyebrow">OUR PRODUCTS</div><h2 class="section-title">FEATURED FRUITS</h2><div class="section-sub">Harga dan stok dibaca langsung dari Firebase.</div></div>
+<div class="toolbar"><div class="search"><input id="search" placeholder="Cari buah..."><button onclick="renderProducts()">⌕</button></div></div></div>
+<div class="filters"><button class="filter active" data-cat="ALL">ALL</button><button class="filter" data-cat="MYTHICAL">MYTHICAL</button><button class="filter" data-cat="LEGENDARY">LEGENDARY</button><button class="filter" data-cat="LIMITED">LIMITED</button></div>
+<div id="productGrid" class="product-grid"><div class="panel">Memuat produk...</div></div>
+</div></section>
+
+<section id="how" class="section"><div class="container"><div class="eyebrow">ORDER FLOW</div><h2 class="section-title">CARA ORDER DI NANZERA STORE</h2>
+<div class="steps">
+<div class="step"><div class="step-num">1</div><h3>PILIH PRODUK</h3><p>Pilih fruit dan jumlah yang kamu inginkan dari website.</p></div>
+<div class="step"><div class="step-num">2</div><h3>PILIH PEMBAYARAN</h3><p>Pilih metode pembayaran langsung di halaman checkout.</p></div>
+<div class="step"><div class="step-num">3</div><h3>SELESAIKAN PEMBAYARAN</h3><p>Setelah pembayaran dikonfirmasi, order masuk ke proses berikutnya.</p></div>
+<div class="step"><div class="step-num">4</div><h3>JADWAL TRADE</h3><p>Masukkan Roblox username. Admin mengusulkan waktu jika waktu pilihan tidak tersedia.</p></div>
+<div class="step"><div class="step-num">5</div><h3>TRADE & SELESAI</h3><p>Setelah trade selesai, admin menandai transaksi selesai dan kode transaksi tersimpan.</p></div>
+</div></div></section>
+
+<section id="status" class="section"><div class="container"><div class="section-head"><div><div class="eyebrow">LIVE ORDER STATUS</div><h2 class="section-title">CEK TRANSAKSI</h2><div class="section-sub">Masukkan invoice untuk memantau status dari Firebase secara real-time.</div></div></div>
+<div class="status-box"><div class="status-input"><input id="invoiceSearch" placeholder="Contoh: NZR-ABC1234"><button class="btn btn-primary" onclick="watchOrder()">Cek Status</button></div><div id="orderStatus" class="hidden"></div></div>
+</div></section>
+
+<section id="support" class="section"><div class="container"><div class="support">
+<div class="support-card"><div class="eyebrow">RESELLER</div><h3>Ingin harga reseller?</h3><p class="muted">Hubungi admin melalui WhatsApp untuk pembahasan reseller.</p><a class="btn btn-primary" id="waReseller" target="_blank">WhatsApp Reseller</a></div>
+<div class="support-card"><div class="eyebrow">COMPLAINT / HELP</div><h3>Butuh bantuan?</h3><p class="muted">WhatsApp digunakan untuk komplain atau bantuan, bukan sebagai checkout utama.</p><a class="btn" id="waHelp" target="_blank">WhatsApp CS</a></div>
+</div></div></section>
+</main>
+
+<footer class="footer"><div class="container footer-grid"><div><div class="brand"><span class="brand-mark">N</span><span>NANZERA <small>STORE</small></span></div><p class="muted">Blox Fruits Trade Center.</p></div><div><h4>Quick Links</h4><a href="#products">Products</a><a href="#how">How It Works</a><a href="#status">Cek Transaksi</a></div><div><h4>Support</h4><a href="#support">Reseller</a><a href="#support">Komplain</a></div><div><h4>Info</h4><a href="#">Syarat & Ketentuan</a><a href="#">Kebijakan Refund</a></div></div><div class="container copyright">© 2026 Nanzera Store. All Rights Reserved.</div></footer>
+
+<div id="checkoutModal" class="hidden" style="position:fixed;inset:0;background:#000b;z-index:90;display:grid;place-items:center;padding:16px">
+<div class="panel" style="width:min(540px,100%);max-height:90vh;overflow:auto"><div style="display:flex;justify-content:space-between;align-items:center"><h2>Checkout</h2><button class="btn" onclick="closeCheckout()">✕</button></div>
+<div id="checkoutProduct" class="muted"></div><div class="form-grid" style="margin-top:18px">
+<div class="field"><label>Roblox Username</label><input id="robloxUser" placeholder="Username Roblox"></div>
+<div class="field"><label>Kontak Email</label><input id="customerEmail" type="email" placeholder="email@kamu.com"></div>
+<div class="field"><label>Jumlah</label><input id="qty" type="number" min="1" value="1"></div>
+<div class="field"><label>Metode Pembayaran</label><select id="paymentMethod"><option value="QRIS">QRIS</option><option value="DANA">DANA</option><option value="OVO">OVO</option><option value="GOPAY">GoPay</option></select></div>
+</div><div id="checkoutTotal" style="font-size:24px;font-weight:900;margin:20px 0"></div>
+<div class="panel" style="margin-bottom:15px"><b>Catatan</b><p class="muted" style="font-size:12px">Order akan tercatat di Firebase. Integrasi gateway pembayaran otomatis harus dikonfigurasi dengan provider pembayaran yang kamu pilih sebelum menerima pembayaran publik.</p></div>
+<button class="btn btn-primary" style="width:100%" onclick="submitOrder()">BUAT PESANAN</button><div id="checkoutMsg" class="muted" style="margin-top:10px"></div>
+</div></div>
+
+<script type="module">
+import {watchProducts, createOrderWithStock, generateInvoiceId, watchTransaction} from "./database.js";
+const WA_NUMBER="6280000000000"; // GANTI dengan nomor WhatsApp bisnis kamu.
+let products=[], activeCat="ALL", selected=null, stopOrderWatch=null;
+
+const money=n=>new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(Number(n)||0);
+const safe=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+
+window.renderProducts=()=>{
+ const q=(document.getElementById("search").value||"").toLowerCase();
+ const list=products.filter(p=>(activeCat==="ALL"||String(p.category||"").toUpperCase()===activeCat)&&String(p.name||"").toLowerCase().includes(q));
+ const grid=document.getElementById("productGrid");
+ if(!list.length){grid.innerHTML='<div class="panel">Produk tidak ditemukan.</div>';return}
+ grid.innerHTML=list.map(p=>{
+   const stock=Number(p.stock||0), out=stock<=0;
+   const cls=String(p.slug||p.name||"").toLowerCase().includes("dragon")?"dragon":String(p.slug||p.name||"").toLowerCase().includes("dough")?"dough":String(p.slug||p.name||"").toLowerCase().includes("leopard")?"leopard":"";
+   return `<article class="product-card"><div class="fruit-art">
+     ${p.popular?'<span class="badge pop">POPULAR</span>':''}<span class="badge ${out?"out":"stock"}">${out?"OUT OF STOCK":"IN STOCK"}</span>
+     ${p.image_url?`<img src="${safe(p.image_url)}" alt="${safe(p.name)}" style="max-width:78%;max-height:175px;object-fit:contain">`:`<div class="fruit-shape ${cls}"></div>`}
+   </div><div class="product-info"><div class="product-name">${safe(p.name)} <span class="rarity">${safe(p.category||"MYTHICAL")}</span></div>
+   <p>${safe(p.description||"Fruit Blox Fruits dengan proses order melalui website.")}</p><div class="price">${money(p.price)}</div>
+   <div class="stock-line">● STOK TERSEDIA: ${stock}</div><div class="product-actions"><button class="btn btn-primary" ${out?"disabled":""} onclick='window.openCheckout(${JSON.stringify(p.id)})'>ORDER NOW 🛒</button></div></div></article>`;
+ }).join("");
+};
+
+window.openCheckout=(id)=>{
+ selected=products.find(p=>p.id===id); if(!selected)return;
+ document.getElementById("checkoutProduct").textContent=`${selected.name} — ${money(selected.price)} / unit`;
+ document.getElementById("qty").value=1; updateTotal(); document.getElementById("checkoutMsg").textContent="";
+ document.getElementById("checkoutModal").classList.remove("hidden");
+};
+window.closeCheckout=()=>document.getElementById("checkoutModal").classList.add("hidden");
+function updateTotal(){if(!selected)return;document.getElementById("checkoutTotal").textContent=money(Number(selected.price||0)*Number(document.getElementById("qty").value||1))}
+document.getElementById("qty").addEventListener("input",updateTotal);
+
+window.submitOrder=async()=>{
+ if(!selected)return;
+ const user=document.getElementById("robloxUser").value.trim(), email=document.getElementById("customerEmail").value.trim();
+ const qty=Math.max(1,Number(document.getElementById("qty").value||1)), method=document.getElementById("paymentMethod").value;
+ if(!user||!email){document.getElementById("checkoutMsg").textContent="Isi Roblox username dan email dulu.";return}
+ const invoice=generateInvoiceId();
+ document.getElementById("checkoutMsg").textContent="Membuat pesanan...";
+ const result=await createOrderWithStock(invoice,selected.id,qty,{product_name:selected.name,unit_price:Number(selected.price||0),total_price:Number(selected.price||0)*qty,roblox_username:user,customer_email:email,payment_method:method,payment_status:"UNPAID",status:"WAITING_PAYMENT"});
+ if(!result.success){document.getElementById("checkoutMsg").textContent=result.error;return}
+ document.getElementById("checkoutMsg").innerHTML=`Pesanan dibuat: <b>${invoice}</b>. Simpan kode ini untuk cek transaksi.`;
+ document.getElementById("invoiceSearch").value=invoice; closeCheckout(); watchOrder();
+};
+
+window.watchOrder=()=>{
+ if(stopOrderWatch)stopOrderWatch();
+ const invoice=document.getElementById("invoiceSearch").value.trim().toUpperCase();
+ if(!invoice){document.getElementById("orderStatus").classList.remove("hidden");document.getElementById("orderStatus").innerHTML='<p class="muted">Masukkan invoice.</p>';return}
+ const box=document.getElementById("orderStatus");box.classList.remove("hidden");box.innerHTML='<p class="muted">Memantau transaksi...</p>';
+ stopOrderWatch=watchTransaction(invoice,(o)=>{
+  if(!o){box.innerHTML='<p class="muted">Invoice tidak ditemukan.</p>';return}
+  const statuses=["WAITING_PAYMENT","PAYMENT_CONFIRMED","WAITING_SCHEDULE","SCHEDULE_CONFIRMED","TRADING","COMPLETED"];
+  const labels={WAITING_PAYMENT:"Menunggu Pembayaran",PAYMENT_CONFIRMED:"Pembayaran Dikonfirmasi",WAITING_SCHEDULE:"Menunggu Jadwal Trade",SCHEDULE_CONFIRMED:"Jadwal Trade Dikonfirmasi",TRADING:"Proses Trade",COMPLETED:"Selesai",CANCELLED:"Dibatalkan"};
+  const idx=Math.max(0,statuses.indexOf(o.status));
+  box.innerHTML=`<div style="margin-top:20px"><b>${safe(o.invoice_id)}</b><h3>${safe(labels[o.status]||o.status)}</h3><p class="muted">${safe(o.product_name)} • ${money(o.total_price)}</p><div class="timeline">${statuses.map((s,i)=>`<div class="t ${i<=idx&&o.status!=="CANCELLED"?"done":""}"><div class="dot"></div>${labels[s]}</div>`).join("")}</div>${o.trade_schedule?`<p style="margin-top:20px"><b>Jadwal:</b> ${safe(o.trade_schedule)}</p>`:""}${o.redeem_code?`<p><b>Kode transaksi:</b> ${safe(o.redeem_code)}</p>`:""}</div>`;
+ });
+};
+
+document.querySelectorAll(".filter").forEach(b=>b.onclick=()=>{document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeCat=b.dataset.cat;renderProducts()});
+document.getElementById("search").addEventListener("input",renderProducts);
+document.getElementById("waReseller").href=`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent("Halo Nanzera Store, saya ingin informasi reseller.")}`;
+document.getElementById("waHelp").href=`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent("Halo Nanzera Store, saya membutuhkan bantuan/komplain.")}`;
+watchProducts(data=>{products=data;renderProducts()});
+</script>
+</body></html>

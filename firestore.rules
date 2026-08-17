@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /transactions/{invoiceId} {
+      // Customer can create only a fresh unpaid order.
+      // Price is validated against the current product document.
+      allow create: if
+        request.resource.data.invoice_id == invoiceId
+        && request.resource.data.status == "WAITING_PAYMENT"
+        && request.resource.data.payment_status == "UNPAID"
+        && request.resource.data.quantity is int
+        && request.resource.data.quantity > 0
+        && request.resource.data.product_id is string
+        && request.resource.data.unit_price ==
+          get(/databases/$(database)/documents/products/$(request.resource.data.product_id)).data.price
+        && request.resource.data.total_price ==
+          request.resource.data.unit_price * request.resource.data.quantity
+        && request.resource.data.roblox_username is string
+        && request.resource.data.customer_email is string;
+
+      // Customer may read an order by invoice. Admin can read/write everything.
+      allow get: if true;
+      allow list: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
