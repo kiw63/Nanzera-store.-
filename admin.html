@@ -122,14 +122,66 @@ document.getElementById("saveProduct").onclick=async()=>{let id=document.getElem
 function startOrders(){let q=query(collection(db,"transactions"),orderBy("created_at","desc"));onSnapshot(q,s=>{orders=s.docs.map(d=>({id:d.id,...d.data()}));renderOrders();renderRecent();stats();chart();customers()},e=>toast("Realtime gagal: "+e.message))}
 function stats(){sProducts.textContent=products.length;sOrders.textContent=orders.length;sWaiting.textContent=orders.filter(o=>o.status==="WAITING_PAYMENT").length;sDone.textContent=orders.filter(o=>o.status==="COMPLETED").length;count.textContent=orders.length+" order"}
 function renderRecent(){recent.innerHTML=orders.slice(0,7).map(o=>`<div><b>${safe(o.invoice_id||o.id)}</b><small>${safe(o.product_name||"-")} • ${money(o.total_price)}</small>${pill(o.status)}</div>`).join("")||'<div class="empty">Belum ada transaksi.</div>'}
-function renderOrders(){let q=oSearch.value.toLowerCase(),f=oFilter.value,l=orders.filter(o=>(f==="ALL"||o.status===f)&&(!q||String(o.invoice_id+" "+o.roblox_username+" "+o.customer_email).toLowerCase().includes(q)));oTable.innerHTML=l.length?l.map(o=>`<tr><td><b>${safe(o.invoice_id||o.id)}</b></td><td>${safe(o.roblox_username||"-")}<div style="color:var(--muted);font-size:10px">${safe(o.customer_email||"-")}</div></td><td>${safe(o.product_name||"-")} × ${Number(o.qty||1)}</td><td>${money(o.total_price)}</td><td>${safe(o.payment_method||"-")}<br>${o.payment_status==="PAID"?'<span class="pill ok">SUDAH BAYAR</span>':'<span class="pill warn">BELUM BAYAR</span>'}</td><td>${pill(o.status)}</td><td><button class="btn primary" onclick="openOrder('${safe(o.id)}')">Kelola</button></td></tr>`).join(""):'<tr><td colspan="7" class="empty">Belum ada transaksi.</td></tr>'}
+function renderOrders(){let q=oSearch.value.toLowerCase(),f=oFilter.value,l=orders.filter(o=>(f==="ALL"||o.status===f)&&(!q||String(o.invoice_id+" "+o.roblox_username+" "+o.customer_email).toLowerCase().includes(q)));oTable.innerHTML=l.length?l.map(o=>`<tr><td><b>${safe(o.invoice_id||o.id)}</b></td><td>${safe(o.roblox_username||"-")}<div style="color:var(--muted);font-size:10px">${safe(o.customer_email||"-")}</div></td><td>${safe(o.product_name||"-")} × ${Number(o.qty||1)}</td><td>${money(o.total_price)}</td><td>${safe(o.payment_method||"-")}<br>${o.payment_status==="PAID"?'<span class="pill ok">SUDAH BAYAR</span>':'<span class="pill warn">BELUM BAYAR</span>'}</td><td>${pill(o.status)}${o.cancellation_reason?`<div style="color:var(--muted);font-size:9px;margin-top:4px">Alasan: ${safe(o.cancellation_reason)}</div>`:""}</td><td><button class="btn primary" onclick="openOrder('${safe(o.id)}')">Kelola</button></td></tr>`).join(""):'<tr><td colspan="7" class="empty">Belum ada transaksi.</td></tr>'}
 oSearch.oninput=renderOrders;oFilter.onchange=renderOrders;
 
-window.openOrder=id=>{let o=orders.find(x=>x.id===id);if(!o)return;orderDetail.innerHTML=`<div class="card"><div class="head"><h3>${safe(o.invoice_id||o.id)}</h3>${pill(o.status)}</div><p style="font-size:12px">Produk: <b>${safe(o.product_name)}</b> × ${Number(o.qty||1)}<br>Total: <b>${money(o.total_price)}</b><br>Roblox: <b>${safe(o.roblox_username)}</b><br>Pembayaran: <b>${safe(o.payment_method||"-")}</b></p><div class="field"><label>JADWAL TRADE</label><input id="schedule" class="input" style="width:100%" value="${safe(o.trade_schedule||"")}" placeholder="18:00 - 22:00 WIB"></div><div class="field" style="margin-top:10px"><label>KODE TRANSAKSI</label><input id="redeem" class="input" style="width:100%" value="${safe(o.redeem_code||"")}"></div><div class="field" style="margin-top:10px"><label>STATUS</label><select id="newStatus" class="select" style="width:100%">${Object.entries(labels).map(([k,v])=>`<option value="${k}" ${o.status===k?"selected":""}>${v}</option>`).join("")}</select></div><div class="actions" style="margin-top:15px">${o.payment_status!=="PAID"?'<button class="btn primary" id="confirm">✓ KONFIRMASI PEMBAYARAN</button>':""}<button class="btn primary" id="saveOrder">SIMPAN PERUBAHAN</button></div><p style="font-size:10px;color:var(--muted);margin-top:12px">Konfirmasi pembayaran hanya setelah dana benar-benar masuk ke QRIS DANA Bisnis.</p></div>`;if(document.getElementById("confirm"))document.getElementById("confirm").onclick=async()=>{if(!confirm("Dana sudah benar-benar masuk?"))return;await updateDoc(doc(db,"transactions",id),{payment_status:"PAID",status:"PAYMENT_CONFIRMED",payment_confirmed_at:serverTimestamp(),last_updated:serverTimestamp()});toast("Pembayaran dikonfirmasi");document.getElementById("orderModal").classList.remove("open")};document.getElementById("saveOrder").onclick=async()=>{await updateDoc(doc(db,"transactions",id),{status:newStatus.value,trade_schedule:schedule.value.trim(),redeem_code:redeem.value.trim(),last_updated:serverTimestamp()});toast("Transaksi diperbarui");document.getElementById("orderModal").classList.remove("open")};document.getElementById("orderModal").classList.add("open")};
+window.openOrder=id=>{let o=orders.find(x=>x.id===id);if(!o)return;orderDetail.innerHTML=`<div class="card"><div class="head"><h3>${safe(o.invoice_id||o.id)}</h3>${pill(o.status)}</div><p style="font-size:12px">Produk: <b>${safe(o.product_name)}</b> × ${Number(o.qty||1)}<br>Total: <b>${money(o.total_price)}</b><br>Roblox: <b>${safe(o.roblox_username)}</b><br>Pembayaran: <b>${safe(o.payment_method||"-")}</b></p><div class="field"><label>JADWAL TRADE</label><input id="schedule" class="input" style="width:100%" value="${safe(o.trade_schedule||"")}" placeholder="18:00 - 22:00 WIB"></div><div class="field" style="margin-top:10px"><label>KODE TRANSAKSI</label><input id="redeem" class="input" style="width:100%" value="${safe(o.redeem_code||"")}"></div><div class="field" style="margin-top:10px"><label>STATUS</label><select id="newStatus" class="select" style="width:100%">${Object.entries(labels).map(([k,v])=>`<option value="${k}" ${o.status===k?"selected":""}>${v}</option>`).join("")}</select></div><div class="actions" style="margin-top:15px">${o.payment_status!=="PAID" && o.status!=="CANCELLED" && o.status!=="COMPLETED"?'<button class="btn primary" id="confirm">✓ KONFIRMASI PEMBAYARAN</button>':""}<button class="btn primary" id="saveOrder" ${o.status==="CANCELLED"||o.status==="COMPLETED"?"disabled":""}>SIMPAN PERUBAHAN</button>${o.status!=="CANCELLED"&&o.status!=="COMPLETED"?'<button class="btn danger" id="cancelOrder">✕ BATALKAN TRANSAKSI</button>':""}</div><p style="font-size:10px;color:var(--muted);margin-top:12px">Konfirmasi pembayaran hanya setelah dana benar-benar masuk ke QRIS DANA Bisnis.</p></div>`;if(document.getElementById("confirm"))document.getElementById("confirm").onclick=async()=>{if(!confirm("Dana sudah benar-benar masuk?"))return;await updateDoc(doc(db,"transactions",id),{payment_status:"PAID",status:"PAYMENT_CONFIRMED",payment_confirmed_at:serverTimestamp(),last_updated:serverTimestamp()});toast("Pembayaran dikonfirmasi");document.getElementById("orderModal").classList.remove("open")};document.getElementById("saveOrder").onclick=async()=>{await updateDoc(doc(db,"transactions",id),{status:newStatus.value,trade_schedule:schedule.value.trim(),redeem_code:redeem.value.trim(),last_updated:serverTimestamp()});toast("Transaksi diperbarui");document.getElementById("orderModal").classList.remove("open")};
+
+const cancelButton=document.getElementById("cancelOrder");
+if(cancelButton){
+  cancelButton.onclick=async()=>{
+    if(o.status==="COMPLETED"||o.status==="CANCELLED"){
+      toast("Transaksi ini tidak dapat dibatalkan lagi.");
+      return;
+    }
+
+    const reason=prompt("Masukkan alasan pembatalan transaksi:");
+    if(reason===null)return;
+    if(!reason.trim()){
+      toast("Alasan pembatalan wajib diisi.");
+      return;
+    }
+
+    if(!confirm("Yakin ingin membatalkan transaksi "+(o.invoice_id||o.id)+"?"))return;
+
+    try{
+      const productId=o.product_id||o.productId;
+      const qty=Math.max(1,Number(o.qty||1));
+
+      if(productId && !o.stock_restored){
+        const product=products.find(p=>p.id===productId);
+
+        if(product){
+          await updateDoc(doc(db,"products",productId),{
+            stock:Number(product.stock||0)+qty,
+            last_updated:serverTimestamp()
+          });
+        }
+      }
+
+      await updateDoc(doc(db,"transactions",id),{
+        status:"CANCELLED",
+        cancellation_reason:reason.trim(),
+        cancelled_at:serverTimestamp(),
+        stock_restored:!!productId,
+        last_updated:serverTimestamp()
+      });
+
+      toast("Transaksi dibatalkan dan stok dikembalikan.");
+      document.getElementById("orderModal").classList.remove("open");
+
+    }catch(error){
+      console.error(error);
+      toast("Gagal membatalkan: "+error.message);
+    }
+  };
+}
+
+document.getElementById("orderModal").classList.add("open")};
 document.getElementById("closeOrder").onclick=()=>document.getElementById("orderModal").classList.remove("open");
 
 function customers(){let m=new Map();orders.forEach(o=>{let k=o.customer_email||o.roblox_username||"-",x=m.get(k)||{r:o.roblox_username||"-",e:o.customer_email||"-",n:0,t:0};x.n++;x.t+=Number(o.total_price||0);m.set(k,x)});let a=[...m.values()];customersTable.innerHTML=a.length?`<table class="table"><thead><tr><th>ROBLOX</th><th>EMAIL</th><th>ORDER</th><th>TOTAL</th></tr></thead><tbody>${a.map(x=>`<tr><td>${safe(x.r)}</td><td>${safe(x.e)}</td><td>${x.n}</td><td>${money(x.t)}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">Belum ada pelanggan.</div>'}
 function chart(){let ds=[];for(let i=6;i>=0;i--){let d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-i);ds.push(d)}let c=ds.map(d=>orders.filter(o=>{let t=o.created_at?.toDate?o.created_at.toDate():new Date(o.created_at||0);return t.toDateString()===d.toDateString()}).length),mx=Math.max(1,...c);document.getElementById("chart").innerHTML=c.map(x=>`<div style="flex:1;height:100%;display:flex;align-items:end"><div class="bar" style="height:${Math.max(2,x/mx*100)}%;width:100%" title="${x} transaksi"></div></div>`).join("");document.getElementById("labels").innerHTML=ds.map(d=>`<span>${d.toLocaleDateString("id-ID",{weekday:"short"}).slice(0,3)}</span>`).join("")}
 </script>
 </body>
-</html>
+                     </html>
