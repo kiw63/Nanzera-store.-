@@ -9,7 +9,7 @@
 <style>
 /* =========================================================
    NANZERA CUSTOMER SYSTEM
-   ========================================================= */
+========================================================= */
 
 .nzr-hidden{
   display:none!important;
@@ -148,6 +148,188 @@
   margin-top:12px;
 }
 
+
+/* =========================================================
+   HORIZONTAL TRANSACTION TIMELINE
+========================================================= */
+
+.nzr-timeline-wrap{
+  width:100%;
+  overflow-x:auto;
+  padding:24px 8px 18px;
+  margin-top:22px;
+}
+
+.nzr-timeline{
+  min-width:900px;
+  position:relative;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:0;
+}
+
+.nzr-line-bg{
+  position:absolute;
+  left:3%;
+  right:3%;
+  top:25px;
+  height:10px;
+  border-radius:999px;
+  background:#282d37;
+  z-index:0;
+}
+
+.nzr-line-progress{
+  position:absolute;
+  left:3%;
+  top:25px;
+  height:10px;
+  width:0;
+  border-radius:999px;
+  background:linear-gradient(
+    90deg,
+    #7c3aed,
+    #a855f7,
+    #c084fc
+  );
+  box-shadow:0 0 14px #8b5cf688;
+  z-index:1;
+  transition:width .8s ease;
+  overflow:hidden;
+}
+
+.nzr-line-progress::after{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-80px;
+  width:80px;
+  height:100%;
+  background:linear-gradient(
+    90deg,
+    transparent,
+    #fff9,
+    transparent
+  );
+  animation:nzrFlow 1.4s linear infinite;
+}
+
+@keyframes nzrFlow{
+  from{
+    left:-80px;
+  }
+  to{
+    left:100%;
+  }
+}
+
+.nzr-step{
+  position:relative;
+  z-index:2;
+  width:140px;
+  text-align:center;
+  flex-shrink:0;
+}
+
+.nzr-dot{
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  margin:0 auto 12px;
+  display:grid;
+  place-items:center;
+  background:#191d26;
+  border:4px solid #353b47;
+  font-weight:900;
+  transition:.5s;
+  position:relative;
+}
+
+.nzr-step.done .nzr-dot{
+  background:#8b5cf6;
+  border-color:#c084fc;
+  box-shadow:
+    0 0 0 5px #8b5cf622,
+    0 0 25px #8b5cf666;
+}
+
+.nzr-step.current .nzr-dot{
+  animation:nzrPulse 1.4s infinite;
+}
+
+@keyframes nzrPulse{
+  0%,100%{
+    transform:scale(1);
+  }
+  50%{
+    transform:scale(1.1);
+  }
+}
+
+.nzr-step-title{
+  font-size:11px;
+  font-weight:900;
+  line-height:1.35;
+}
+
+.nzr-step-sub{
+  font-size:10px;
+  color:#858c99;
+  margin-top:5px;
+  line-height:1.4;
+}
+
+.nzr-admin-box{
+  margin-top:18px;
+  border:1px solid #8b5cf655;
+  background:#17121f;
+  border-radius:16px;
+  padding:18px;
+  text-align:center;
+  animation:nzrAdminAppear .6s ease;
+}
+
+@keyframes nzrAdminAppear{
+  from{
+    opacity:0;
+    transform:translateY(12px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+.nzr-admin-user{
+  font-size:22px;
+  font-weight:950;
+  letter-spacing:.04em;
+  margin:8px 0;
+}
+
+.nzr-sacrifice{
+  font-size:16px;
+  font-weight:900;
+  margin-top:12px;
+}
+
+.nzr-proof-preview{
+  margin-top:12px;
+  border-radius:12px;
+  overflow:hidden;
+  background:#0b0d12;
+  text-align:center;
+}
+
+.nzr-proof-preview img{
+  max-width:100%;
+  max-height:320px;
+  object-fit:contain;
+  display:block;
+  margin:auto;
+}
+
 @media(max-width:700px){
 
   .nzr-pay-grid{
@@ -161,18 +343,18 @@
   .nzr-invoice{
     font-size:22px;
   }
+
+  .nzr-timeline-wrap{
+    margin-left:-4px;
+    margin-right:-4px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<!-- =========================================================
-     NAVBAR
-========================================================= -->
-
 <header class="topbar">
-
 <div class="container inner">
 
 <a class="brand" href="#home">
@@ -181,17 +363,11 @@
 </a>
 
 <nav class="nav">
-
 <a class="active" href="#home">HOME</a>
-
 <a href="#products">PRODUCTS</a>
-
 <a href="#how">HOW IT WORKS</a>
-
 <a href="#status">CEK TRANSAKSI</a>
-
 <a href="#support">SUPPORT</a>
-
 </nav>
 
 <button
@@ -201,28 +377,17 @@ onclick="document.querySelector('.nav').classList.toggle('mobile-open')">
 </button>
 
 </div>
-
 </header>
 
 
-<!-- =========================================================
-     MAIN
-========================================================= -->
-
 <main>
 
-
-<!-- =========================================================
-     HERO
-========================================================= -->
-
+<!-- HERO -->
 <section id="home" class="hero">
 
 <div class="hero-art">
-
 <div class="orb o1"></div>
 <div class="orb o2"></div>
-
 </div>
 
 <div class="container">
@@ -266,31 +431,22 @@ bukti pembayaran dan status transaksi realtime.
 
 <div class="hero-actions">
 
-<a
-class="btn btn-primary"
-href="#products">
+<a class="btn btn-primary" href="#products">
 🛍 BROWSE PRODUCTS
 </a>
 
-<a
-class="btn"
-href="#how">
+<a class="btn" href="#how">
 ▶ HOW IT WORKS
 </a>
 
 </div>
 
 </div>
-
 </div>
-
 </section>
 
 
-<!-- =========================================================
-     PRODUCTS
-========================================================= -->
-
+<!-- PRODUCTS -->
 <section id="products" class="section">
 
 <div class="container">
@@ -321,8 +477,7 @@ Harga dan stok dibaca langsung dari Firebase.
 id="search"
 placeholder="Cari buah...">
 
-<button
-id="searchBtn">
+<button id="searchBtn">
 ⌕
 </button>
 
@@ -332,39 +487,27 @@ id="searchBtn">
 
 </div>
 
-
 <div class="filters">
 
-<button
-class="filter active"
-data-cat="ALL">
+<button class="filter active" data-cat="ALL">
 ALL
 </button>
 
-<button
-class="filter"
-data-cat="MYTHICAL">
+<button class="filter" data-cat="MYTHICAL">
 MYTHICAL
 </button>
 
-<button
-class="filter"
-data-cat="LEGENDARY">
+<button class="filter" data-cat="LEGENDARY">
 LEGENDARY
 </button>
 
-<button
-class="filter"
-data-cat="LIMITED">
+<button class="filter" data-cat="LIMITED">
 LIMITED
 </button>
 
 </div>
 
-
-<div
-id="productGrid"
-class="product-grid">
+<div id="productGrid" class="product-grid">
 
 <div class="panel">
 Memuat produk...
@@ -373,14 +516,10 @@ Memuat produk...
 </div>
 
 </div>
-
 </section>
 
 
-<!-- =========================================================
-     HOW IT WORKS
-========================================================= -->
-
+<!-- HOW -->
 <section id="how" class="section">
 
 <div class="container">
@@ -396,153 +535,65 @@ CARA ORDER DI NANZERA STORE
 <div class="steps">
 
 <div class="step">
-
-<div class="step-num">
-1
+<div class="step-num">1</div>
+<h3>PILIH PRODUK</h3>
+<p>Pilih fruit yang tersedia dan jumlah yang kamu inginkan.</p>
 </div>
-
-<h3>
-PILIH PRODUK
-</h3>
-
-<p>
-Pilih fruit yang tersedia dan jumlah yang kamu inginkan.
-</p>
-
-</div>
-
 
 <div class="step">
-
-<div class="step-num">
-2
+<div class="step-num">2</div>
+<h3>CHECKOUT</h3>
+<p>Masukkan Roblox username, email, jumlah dan jadwal.</p>
 </div>
-
-<h3>
-CHECKOUT
-</h3>
-
-<p>
-Masukkan Roblox username, email,
-jumlah dan jadwal yang kamu inginkan.
-</p>
-
-</div>
-
 
 <div class="step">
-
-<div class="step-num">
-3
+<div class="step-num">3</div>
+<h3>GUNAKAN VOUCHER</h3>
+<p>Masukkan kode voucher jika kamu memiliki promo.</p>
 </div>
-
-<h3>
-GUNAKAN VOUCHER
-</h3>
-
-<p>
-Masukkan kode voucher jika kamu memiliki promo.
-</p>
-
-</div>
-
 
 <div class="step">
-
-<div class="step-num">
-4
+<div class="step-num">4</div>
+<h3>BAYAR</h3>
+<p>Bayar menggunakan QRIS DANA Bisnis.</p>
 </div>
-
-<h3>
-BAYAR
-</h3>
-
-<p>
-Bayar menggunakan QRIS DANA Bisnis
-langsung dari halaman pembayaran.
-</p>
-
-</div>
-
 
 <div class="step">
-
-<div class="step-num">
-5
+<div class="step-num">5</div>
+<h3>UPLOAD BUKTI</h3>
+<p>Upload bukti pembayaran dan tunggu verifikasi admin.</p>
 </div>
-
-<h3>
-UPLOAD BUKTI
-</h3>
-
-<p>
-Upload bukti pembayaran dan tunggu verifikasi admin.
-</p>
-
-</div>
-
 
 <div class="step">
-
-<div class="step-num">
-6
+<div class="step-num">6</div>
+<h3>JADWAL TRADE</h3>
+<p>Admin menentukan atau menawarkan jadwal trade.</p>
 </div>
-
-<h3>
-JADWAL TRADE
-</h3>
-
-<p>
-Admin menentukan atau menawarkan jadwal trade.
-</p>
-
-</div>
-
 
 <div class="step">
-
-<div class="step-num">
-7
+<div class="step-num">7</div>
+<h3>ADD USERNAME ADMIN</h3>
+<p>Username admin muncul ketika transaksi mencapai tahap ini.</p>
 </div>
-
-<h3>
-TRADE
-</h3>
-
-<p>
-Admin melakukan trade sesuai jadwal yang disepakati.
-</p>
-
-</div>
-
 
 <div class="step">
-
-<div class="step-num">
-8
+<div class="step-num">8</div>
+<h3>TRADE</h3>
+<p>Admin melakukan trade sesuai jadwal.</p>
 </div>
 
-<h3>
-SELESAI
-</h3>
-
-<p>
-Transaksi ditandai selesai dan kode transaksi tersimpan.
-</p>
-
+<div class="step">
+<div class="step-num">9</div>
+<h3>SELESAI</h3>
+<p>Transaksi selesai dan kode transaksi tersimpan.</p>
 </div>
 
 </div>
-
 </div>
-
 </section>
 
 
-<!-- =========================================================
-     TRANSACTION STATUS
-========================================================= -->
-
+<!-- STATUS -->
 <section id="status" class="section">
 
 <div class="container">
@@ -567,7 +618,6 @@ Masukkan kode invoice untuk memantau pesanan secara realtime.
 
 </div>
 
-
 <div class="status-box">
 
 <div class="status-input">
@@ -584,29 +634,20 @@ CEK STATUS
 
 </div>
 
-
-<div
-id="orderStatus"
-class="hidden">
-</div>
+<div id="orderStatus" class="hidden"></div>
 
 </div>
 
 </div>
-
 </section>
 
 
-<!-- =========================================================
-     SUPPORT
-========================================================= -->
-
+<!-- SUPPORT -->
 <section id="support" class="section">
 
 <div class="container">
 
 <div class="support">
-
 
 <div class="support-card">
 
@@ -630,7 +671,6 @@ WhatsApp Reseller
 </a>
 
 </div>
-
 
 <div class="support-card">
 
@@ -656,20 +696,14 @@ WhatsApp CS
 
 </div>
 
-
 </div>
-
 </div>
-
 </section>
 
 </main>
 
 
-<!-- =========================================================
-     FOOTER
-========================================================= -->
-
+<!-- FOOTER -->
 <footer class="footer">
 
 <div class="container footer-grid">
@@ -677,16 +711,8 @@ WhatsApp CS
 <div>
 
 <div class="brand">
-
-<span class="brand-mark">
-N
-</span>
-
-<span>
-NANZERA
-<small>STORE</small>
-</span>
-
+<span class="brand-mark">N</span>
+<span>NANZERA <small>STORE</small></span>
 </div>
 
 <p class="muted">
@@ -695,78 +721,35 @@ Blox Fruits Trade Center.
 
 </div>
 
+<div>
+<h4>Quick Links</h4>
+<a href="#products">Products</a>
+<a href="#how">How It Works</a>
+<a href="#status">Cek Transaksi</a>
+</div>
 
 <div>
-
-<h4>
-Quick Links
-</h4>
-
-<a href="#products">
-Products
-</a>
-
-<a href="#how">
-How It Works
-</a>
-
-<a href="#status">
-Cek Transaksi
-</a>
-
+<h4>Support</h4>
+<a href="#support">Reseller</a>
+<a href="#support">Komplain</a>
 </div>
-
 
 <div>
-
-<h4>
-Support
-</h4>
-
-<a href="#support">
-Reseller
-</a>
-
-<a href="#support">
-Komplain
-</a>
-
-</div>
-
-
-<div>
-
-<h4>
-Info
-</h4>
-
-<a href="#">
-Syarat & Ketentuan
-</a>
-
-<a href="#">
-Kebijakan Refund
-</a>
-
+<h4>Info</h4>
+<a href="#">Syarat & Ketentuan</a>
+<a href="#">Kebijakan Refund</a>
 </div>
 
 </div>
-
 
 <div class="container copyright">
-
 © 2026 Nanzera Store. All Rights Reserved.
-
 </div>
 
 </footer>
 
 
-
-<!-- =========================================================
-     CHECKOUT MODAL
-========================================================= -->
-
+<!-- CHECKOUT -->
 <div
 id="checkoutModal"
 class="hidden"
@@ -795,97 +778,48 @@ justify-content:space-between;
 align-items:center;
 ">
 
-<h2>
-Checkout
-</h2>
+<h2>Checkout</h2>
 
-<button
-class="btn"
-id="closeCheckout">
+<button class="btn" id="closeCheckout">
 ✕
 </button>
 
 </div>
 
-
-<div
-id="checkoutProduct"
-class="muted">
-</div>
-
-
-<!-- CUSTOMER DATA -->
+<div id="checkoutProduct" class="muted"></div>
 
 <div
 class="form-grid"
 style="margin-top:18px;">
 
 <div class="field">
-
-<label>
-Roblox Username
-</label>
-
-<input
-id="robloxUser"
-placeholder="Username Roblox">
-
+<label>Roblox Username</label>
+<input id="robloxUser" placeholder="Username Roblox">
 </div>
-
 
 <div class="field">
-
-<label>
-Kontak Email
-</label>
-
-<input
-id="customerEmail"
-type="email"
-placeholder="email@kamu.com">
-
+<label>Kontak Email</label>
+<input id="customerEmail" type="email" placeholder="email@kamu.com">
 </div>
-
 
 <div class="field">
-
-<label>
-Jumlah
-</label>
-
-<input
-id="qty"
-type="number"
-min="1"
-value="1">
-
+<label>Jumlah</label>
+<input id="qty" type="number" min="1" value="1">
 </div>
-
 
 <div class="field">
-
-<label>
-Jadwal yang Diinginkan
-</label>
-
-<input
-id="requestedSchedule"
-placeholder="Contoh: 17:00 WIB">
-
+<label>Jadwal yang Diinginkan</label>
+<input id="requestedSchedule" placeholder="Contoh: 17:00 WIB">
 </div>
 
 </div>
 
-
-<!-- VOUCHER -->
 
 <div
 class="nzr-card"
 style="margin-top:16px;">
 
-<b>
-🎫 KODE VOUCHER
-</b>
+<b>🎫 KODE VOUCHER</b>
 
 <div class="nzr-voucher">
 
@@ -894,30 +828,20 @@ id="voucherCode"
 placeholder="Contoh: NANZERA10"
 autocomplete="off">
 
-<button
-class="btn"
-id="applyVoucher">
+<button class="btn" id="applyVoucher">
 GUNAKAN
 </button>
 
 </div>
 
-<div
-id="voucherMsg"
-style="margin-top:8px;">
-</div>
+<div id="voucherMsg" style="margin-top:8px;"></div>
 
 </div>
 
 
-<!-- TOTAL -->
-
-<div
-class="nzr-total"
-id="checkoutTotal">
+<div class="nzr-total" id="checkoutTotal">
 Rp0
 </div>
-
 
 <div
 id="checkoutBreakdown"
@@ -925,8 +849,6 @@ class="muted"
 style="font-size:12px;">
 </div>
 
-
-<!-- INFO -->
 
 <div
 class="nzr-notice"
@@ -936,10 +858,8 @@ style="margin-top:15px;">
 
 <br>
 
-Sebelum order dibuat, sistem akan mengecek
+Sebelum order dibuat, sistem mengecek
 stok terbaru dari Firebase lagi.
-Jika stok sudah berubah atau habis,
-pesanan tidak akan dibuat.
 
 </div>
 
@@ -951,41 +871,26 @@ style="margin-top:16px;">
 <button
 class="btn btn-primary"
 id="createOrderBtn">
-
 BUAT PESANAN
 <br>
-
 & LANJUT PEMBAYARAN
-
 </button>
 
 <button
 class="btn"
 id="resumeSavedBtn">
-
 PULIHKAN DATA
-
 </button>
 
 </div>
 
-
-<div
-id="checkoutMsg"
-class="muted"
-style="margin-top:10px;">
-</div>
+<div id="checkoutMsg" class="muted" style="margin-top:10px;"></div>
 
 </div>
-
 </div>
 
 
-
-<!-- =========================================================
-     PAYMENT MODAL
-========================================================= -->
-
+<!-- PAYMENT -->
 <div
 id="paymentModal"
 class="hidden"
@@ -1007,7 +912,6 @@ max-height:94vh;
 overflow:auto;
 ">
 
-
 <div
 style="
 display:flex;
@@ -1015,45 +919,27 @@ justify-content:space-between;
 align-items:center;
 ">
 
-<h2>
-Pembayaran
-</h2>
+<h2>Pembayaran</h2>
 
-<button
-class="btn"
-id="closePayment">
+<button class="btn" id="closePayment">
 ✕
 </button>
 
 </div>
 
-
-<div id="paymentContent">
-</div>
-
+<div id="paymentContent"></div>
 
 </div>
-
 </div>
 
-
-
-<!-- =========================================================
-     JAVASCRIPT
-========================================================= -->
 
 <script type="module">
 
 import {
-
 watchProducts,
-
 createOrderWithStock,
-
 generateInvoiceId,
-
 watchTransaction
-
 } from "./database.js";
 
 
@@ -1061,9 +947,7 @@ watchTransaction
    CONFIG
 ========================================================= */
 
-const WA_NUMBER =
-"6285134793273";
-
+const WA_NUMBER = "6285134793273";
 
 const QRIS_IMAGE_URL =
 "https://raw.githubusercontent.com/kiw63/Gambar/main/qr_ID1025441946833_18.08.26_1787049766_1787049766812.jpeg";
@@ -1074,15 +958,10 @@ const QRIS_IMAGE_URL =
 ========================================================= */
 
 let products = [];
-
 let activeCat = "ALL";
-
 let selected = null;
-
 let voucher = null;
-
 let stopOrderWatch = null;
-
 let currentOrder = null;
 
 
@@ -1091,7 +970,6 @@ let currentOrder = null;
 ========================================================= */
 
 const money = n =>
-
 new Intl.NumberFormat(
 "id-ID",
 {
@@ -1103,7 +981,6 @@ maximumFractionDigits:0
 
 
 const safe = s =>
-
 String(s ?? "").replace(
 /[&<>"']/g,
 m => ({
@@ -1139,19 +1016,15 @@ requestedSchedule:
 document.getElementById("requestedSchedule").value.trim(),
 
 voucherCode:
-document.getElementById("voucherCode").value
-.trim()
-.toUpperCase(),
+document.getElementById("voucherCode").value.trim().toUpperCase(),
 
 invoice:
-document.getElementById("invoiceSearch").value
-.trim()
-.toUpperCase()
+document.getElementById("invoiceSearch").value.trim().toUpperCase()
 
 };
 
 localStorage.setItem(
-"nanzera_customer_session_v1",
+"nanzera_customer_session_v2",
 JSON.stringify(draft)
 );
 
@@ -1162,16 +1035,13 @@ function restoreDraft(){
 
 try{
 
-const data =
-JSON.parse(
+const data = JSON.parse(
 localStorage.getItem(
-"nanzera_customer_session_v1"
+"nanzera_customer_session_v2"
 ) || "null"
 );
 
-if(!data)
-return false;
-
+if(!data) return false;
 
 if(data.productId){
 
@@ -1182,36 +1052,29 @@ p => p.id === data.productId
 
 }
 
-
 if(data.robloxUser)
 document.getElementById("robloxUser").value =
 data.robloxUser;
-
 
 if(data.email)
 document.getElementById("customerEmail").value =
 data.email;
 
-
 if(data.qty)
 document.getElementById("qty").value =
 data.qty;
-
 
 if(data.requestedSchedule)
 document.getElementById("requestedSchedule").value =
 data.requestedSchedule;
 
-
 if(data.voucherCode)
 document.getElementById("voucherCode").value =
 data.voucherCode;
 
-
 if(data.invoice)
 document.getElementById("invoiceSearch").value =
 data.invoice;
-
 
 if(selected){
 
@@ -1224,13 +1087,11 @@ updateTotal();
 
 }
 
-
 return true;
 
 }catch(error){
 
 console.error(error);
-
 return false;
 
 }
@@ -1244,9 +1105,7 @@ return false;
 
 function calculateDiscount(subtotal){
 
-if(!voucher)
-return 0;
-
+if(!voucher) return 0;
 
 if(
 String(voucher.type || "").toLowerCase()
@@ -1261,7 +1120,6 @@ Number(voucher.value || 0)
 
 }
 
-
 const percent =
 Math.max(
 0,
@@ -1271,10 +1129,8 @@ Number(voucher.value || 0)
 )
 );
 
-
 let discount =
 subtotal * percent / 100;
-
 
 if(
 voucher.max_discount !== undefined &&
@@ -1288,7 +1144,6 @@ Number(voucher.max_discount)
 );
 
 }
-
 
 return discount;
 
@@ -1306,31 +1161,23 @@ message:"Masukkan kode voucher."
 
 }
 
-
 try{
 
-const {
-db
-} = await import("./database.js");
-
+const {db} =
+await import("./database.js");
 
 const {
 doc,
 getDoc
-} = await import(
+} =
+await import(
 "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js"
 );
 
-
 const snap =
 await getDoc(
-doc(
-db,
-"vouchers",
-code
-)
+doc(db,"vouchers",code)
 );
-
 
 if(!snap.exists()){
 
@@ -1341,15 +1188,10 @@ message:"Kode voucher tidak ditemukan."
 
 }
 
-
 const v = {
-
 id:snap.id,
-
 ...snap.data()
-
 };
-
 
 if(v.active === false){
 
@@ -1360,17 +1202,11 @@ message:"Voucher sedang tidak aktif."
 
 }
 
-
-/* DATE */
-
 const now = Date.now();
-
 
 function timestamp(value){
 
-if(!value)
-return null;
-
+if(!value) return null;
 
 if(
 typeof value.toMillis === "function"
@@ -1380,9 +1216,7 @@ return value.toMillis();
 
 }
 
-
-const parsed =
-Date.parse(value);
+const parsed = Date.parse(value);
 
 return Number.isNaN(parsed)
 ? null
@@ -1390,25 +1224,17 @@ return Number.isNaN(parsed)
 
 }
 
-
 const start =
 timestamp(
-v.start_at ||
-v.start_date
+v.start_at || v.start_date
 );
-
 
 const end =
 timestamp(
-v.end_at ||
-v.end_date
+v.end_at || v.end_date
 );
 
-
-if(
-start &&
-now < start
-){
+if(start && now < start){
 
 return {
 ok:false,
@@ -1417,11 +1243,7 @@ message:"Voucher belum mulai berlaku."
 
 }
 
-
-if(
-end &&
-now > end
-){
+if(end && now > end){
 
 return {
 ok:false,
@@ -1430,18 +1252,13 @@ message:"Voucher sudah kedaluwarsa."
 
 }
 
-
-/* USAGE */
-
 const used =
 Number(v.used_count || 0);
-
 
 const limit =
 v.usage_limit === undefined
 ? null
 : Number(v.usage_limit);
-
 
 if(
 limit !== null &&
@@ -1455,30 +1272,20 @@ message:"Voucher sudah mencapai batas pemakaian."
 
 }
 
-
 return {
-
 ok:true,
-
 voucher:v,
-
 message:
 `Voucher ${v.code || v.id} berhasil digunakan.`
-
 };
-
 
 }catch(error){
 
 console.error(error);
 
 return {
-
 ok:false,
-
-message:
-"Gagal memeriksa voucher."
-
+message:"Gagal memeriksa voucher."
 };
 
 }
@@ -1492,9 +1299,7 @@ message:
 
 function updateTotal(){
 
-if(!selected)
-return;
-
+if(!selected) return;
 
 const qty =
 Math.max(
@@ -1504,17 +1309,11 @@ document.getElementById("qty").value || 1
 )
 );
 
-
 const subtotal =
-Number(selected.price || 0) *
-qty;
-
+Number(selected.price || 0) * qty;
 
 const discount =
-calculateDiscount(
-subtotal
-);
-
+calculateDiscount(subtotal);
 
 const total =
 Math.max(
@@ -1522,17 +1321,14 @@ Math.max(
 subtotal - discount
 );
 
-
 document.getElementById(
 "checkoutTotal"
 ).textContent =
 money(total);
 
-
 document.getElementById(
 "checkoutBreakdown"
 ).innerHTML =
-
 `
 Subtotal: ${money(subtotal)}
 <br>
@@ -1540,7 +1336,6 @@ Diskon voucher: -${money(discount)}
 <br>
 <b>Total: ${money(total)}</b>
 `;
-
 
 saveDraft();
 
@@ -1556,42 +1351,21 @@ window.renderProducts = () => {
 const query =
 (
 document.getElementById("search").value || ""
-)
-.toLowerCase();
-
+).toLowerCase();
 
 const list =
 products.filter(
 p =>
-
 (
 activeCat === "ALL" ||
-
-String(
-p.category || ""
+String(p.category || "").toUpperCase() === activeCat
 )
-.toUpperCase()
-===
-activeCat
-
-)
-
 &&
-
-String(
-p.name || ""
-)
-.toLowerCase()
-.includes(query)
-
+String(p.name || "").toLowerCase().includes(query)
 );
-
 
 const grid =
-document.getElementById(
-"productGrid"
-);
-
+document.getElementById("productGrid");
 
 if(!list.length){
 
@@ -1606,21 +1380,16 @@ return;
 
 }
 
-
 grid.innerHTML =
-list.map(
-p => {
+list.map(p => {
 
 const stock =
 Number(p.stock || 0);
 
-
 const out =
 stock <= 0;
 
-
 return `
-
 <article class="product-card">
 
 <div class="fruit-art">
@@ -1630,26 +1399,17 @@ p.popular
 ?
 '<span class="badge pop">POPULAR</span>'
 :
-''
+""
 }
 
-<span
-class="badge ${out?"out":"stock"}">
-
-${out
-?"OUT OF STOCK"
-:"IN STOCK"}
-
+<span class="badge ${out?"out":"stock"}">
+${out?"OUT OF STOCK":"IN STOCK"}
 </span>
-
 
 ${
 p.image_url
-
 ?
-
 `
-
 <img
 src="${safe(p.image_url)}"
 alt="${safe(p.name)}"
@@ -1658,23 +1418,16 @@ max-width:78%;
 max-height:175px;
 object-fit:contain;
 ">
-
 `
-
 :
-
 `
-
 <div class="fruit-placeholder">
 FRUIT
 </div>
-
 `
-
 }
 
 </div>
-
 
 <div class="product-info">
 
@@ -1683,48 +1436,32 @@ FRUIT
 ${safe(p.name)}
 
 <span class="rarity">
-
-${safe(
-p.category ||
-"MYTHICAL"
-)}
-
+${safe(p.category || "MYTHICAL")}
 </span>
 
 </div>
 
-
 <p>
-
 ${safe(
 p.description ||
 "Fruit Blox Fruits dengan proses order melalui website."
 )}
-
 </p>
 
-
 <div class="price">
-
 ${money(p.price)}
-
 </div>
-
 
 <div class="stock-line">
-
-● STOK TERSEDIA:
-${stock}
-
+● STOK TERSEDIA: ${stock}
 </div>
-
 
 <div class="product-actions">
 
 <button
 class="btn btn-primary"
-${out ? "disabled" : ""}
-onclick="openCheckout('${safe(p.id)}')">
+${out?"disabled":""}
+onclick="openCheckout(${JSON.stringify(p.id)})">
 
 ORDER NOW 🛒
 
@@ -1733,13 +1470,10 @@ ORDER NOW 🛒
 </div>
 
 </div>
-
 </article>
-
 `;
 
-}
-).join("");
+}).join("");
 
 };
 
@@ -1755,44 +1489,30 @@ products.find(
 p => p.id === id
 );
 
-
-if(!selected)
-return;
-
+if(!selected) return;
 
 voucher = null;
-
 
 document.getElementById(
 "checkoutProduct"
 ).textContent =
 `${selected.name} — ${money(selected.price)} / unit`;
 
-
-document.getElementById("qty").value =
-1;
-
+document.getElementById("qty").value = 1;
 
 document.getElementById(
 "voucherCode"
-).value =
-"";
-
+).value = "";
 
 document.getElementById(
 "voucherMsg"
-).textContent =
-"";
-
+).textContent = "";
 
 document.getElementById(
 "checkoutMsg"
-).textContent =
-"";
-
+).textContent = "";
 
 updateTotal();
-
 
 document.getElementById(
 "checkoutModal"
@@ -1802,7 +1522,7 @@ document.getElementById(
 
 
 /* =========================================================
-   CLOSE MODALS
+   MODAL
 ========================================================= */
 
 function closeCheckout(){
@@ -1813,7 +1533,6 @@ document.getElementById(
 
 }
 
-
 function closePayment(){
 
 document.getElementById(
@@ -1822,12 +1541,10 @@ document.getElementById(
 
 }
 
-
 document.getElementById(
 "closeCheckout"
 ).onclick =
 closeCheckout;
-
 
 document.getElementById(
 "closePayment"
@@ -1836,7 +1553,7 @@ closePayment;
 
 
 /* =========================================================
-   INPUT EVENTS
+   INPUTS
 ========================================================= */
 
 document.getElementById(
@@ -1846,35 +1563,31 @@ document.getElementById(
 updateTotal
 );
 
-
 [
 "robloxUser",
 "customerEmail",
 "requestedSchedule",
 "voucherCode"
-].forEach(
-id =>
+].forEach(id => {
 
 document.getElementById(id)
 .addEventListener(
 "input",
 saveDraft
-)
-
 );
+
+});
 
 
 /* =========================================================
-   RESTORE BUTTON
+   RESTORE
 ========================================================= */
 
 document.getElementById(
 "resumeSavedBtn"
 ).onclick = () => {
 
-if(
-restoreDraft()
-){
+if(restoreDraft()){
 
 document.getElementById(
 "checkoutMsg"
@@ -1894,7 +1607,7 @@ document.getElementById(
 
 
 /* =========================================================
-   APPLY VOUCHER
+   VOUCHER
 ========================================================= */
 
 document.getElementById(
@@ -1905,28 +1618,17 @@ async () => {
 const code =
 document.getElementById(
 "voucherCode"
-).value
-.trim()
-.toUpperCase();
-
+).value.trim().toUpperCase();
 
 const msg =
-document.getElementById(
-"voucherMsg"
-);
-
+document.getElementById("voucherMsg");
 
 msg.className = "";
-
 msg.textContent =
 "Memeriksa voucher...";
 
-
 const result =
-await validateVoucher(
-code
-);
-
+await validateVoucher(code);
 
 if(!result.ok){
 
@@ -1951,7 +1653,6 @@ result.message;
 
 }
 
-
 updateTotal();
 
 };
@@ -1966,46 +1667,35 @@ document.getElementById(
 ).onclick =
 async () => {
 
-if(!selected)
-return;
-
+if(!selected) return;
 
 const username =
 document.getElementById(
 "robloxUser"
 ).value.trim();
 
-
 const email =
 document.getElementById(
 "customerEmail"
 ).value.trim();
 
-
 const qty =
 Math.max(
 1,
 Number(
-document.getElementById(
-"qty"
-).value || 1
+document.getElementById("qty").value || 1
 )
 );
-
 
 const schedule =
 document.getElementById(
 "requestedSchedule"
 ).value.trim();
 
-
 const voucherCode =
 document.getElementById(
 "voucherCode"
-).value
-.trim()
-.toUpperCase();
-
+).value.trim().toUpperCase();
 
 if(!username || !email){
 
@@ -2017,7 +1707,6 @@ document.getElementById(
 return;
 
 }
-
 
 if(!schedule){
 
@@ -2036,10 +1725,7 @@ return;
 if(voucherCode){
 
 const result =
-await validateVoucher(
-voucherCode
-);
-
+await validateVoucher(voucherCode);
 
 if(!result.ok){
 
@@ -2050,12 +1736,10 @@ document.getElementById(
 ).className =
 "nzr-error";
 
-
 document.getElementById(
 "voucherMsg"
 ).textContent =
 result.message;
-
 
 updateTotal();
 
@@ -2063,43 +1747,31 @@ return;
 
 }
 
-
 voucher =
 result.voucher;
 
 }
 
 
-/* =========================================================
-   RECHECK STOCK
-========================================================= */
+/* RECHECK STOCK */
 
 try{
 
-const {
-db
-} = await import(
-"./database.js"
-);
-
+const {db} =
+await import("./database.js");
 
 const {
 doc,
 getDoc
-} = await import(
+} =
+await import(
 "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js"
 );
 
-
 const snapshot =
 await getDoc(
-doc(
-db,
-"products",
-selected.id
-)
+doc(db,"products",selected.id)
 );
-
 
 if(!snapshot.exists()){
 
@@ -2112,25 +1784,15 @@ return;
 
 }
 
-
 const latest = {
-
 id:snapshot.id,
-
 ...snapshot.data()
-
 };
 
-
 const latestStock =
-Number(
-latest.stock || 0
-);
+Number(latest.stock || 0);
 
-
-if(
-latestStock < qty
-){
+if(latestStock < qty){
 
 products =
 products.map(
@@ -2140,13 +1802,9 @@ p.id === selected.id
 : p
 );
 
-
-selected =
-latest;
-
+selected = latest;
 
 renderProducts();
-
 
 document.getElementById(
 "checkoutMsg"
@@ -2157,10 +1815,7 @@ return;
 
 }
 
-
-selected =
-latest;
-
+selected = latest;
 
 }catch(error){
 
@@ -2176,20 +1831,13 @@ return;
 }
 
 
-/* =========================================================
-   PRICE
-========================================================= */
+/* PRICE */
 
 const subtotal =
-Number(selected.price || 0) *
-qty;
-
+Number(selected.price || 0) * qty;
 
 const discount =
-calculateDiscount(
-subtotal
-);
-
+calculateDiscount(subtotal);
 
 const total =
 Math.max(
@@ -2197,14 +1845,8 @@ Math.max(
 subtotal - discount
 );
 
-
-/* =========================================================
-   INVOICE
-========================================================= */
-
 const invoice =
 generateInvoiceId();
-
 
 document.getElementById(
 "checkoutMsg"
@@ -2212,19 +1854,13 @@ document.getElementById(
 "Membuat pesanan...";
 
 
-/* =========================================================
-   CREATE FIREBASE ORDER
-========================================================= */
+/* CREATE */
 
 const result =
 await createOrderWithStock(
-
 invoice,
-
 selected.id,
-
 qty,
-
 {
 
 product_name:
@@ -2279,13 +1915,8 @@ estimated_process:
 "Menunggu pembayaran dan verifikasi admin"
 
 }
-
 );
 
-
-/* =========================================================
-   RESULT
-========================================================= */
 
 if(!result.success){
 
@@ -2300,48 +1931,30 @@ return;
 }
 
 
-/* =========================================================
-   SAVE CURRENT ORDER
-========================================================= */
-
 currentOrder = {
-
 invoice,
-
 product:selected,
-
 qty,
-
 subtotal,
-
 discount,
-
 total
-
 };
-
 
 localStorage.setItem(
 "nanzera_last_invoice",
 invoice
 );
 
-
 document.getElementById(
 "invoiceSearch"
 ).value =
 invoice;
 
-
 saveDraft();
-
 
 closeCheckout();
 
-
-showPaymentPage(
-currentOrder
-);
+showPaymentPage(currentOrder);
 
 };
 
@@ -2366,80 +1979,46 @@ document.getElementById(
 INVOICE
 </div>
 
-
 <div class="nzr-invoice">
-
 ${safe(order.invoice)}
-
 </div>
-
 
 <button
 class="btn nzr-copy"
 id="copyInvoiceBtn"
 style="margin-top:10px">
-
 📋 COPY INVOICE
-
 </button>
-
 
 <div
 class="nzr-card"
 style="margin-top:16px;">
 
 <div class="nzr-info-row">
-
 <span>Produk</span>
-
-<b>
-${safe(order.product.name)}
-</b>
-
+<b>${safe(order.product.name)}</b>
 </div>
 
-
 <div class="nzr-info-row">
-
 <span>Jumlah</span>
-
-<b>
-${order.qty}
-</b>
-
+<b>${order.qty}</b>
 </div>
 
-
 <div class="nzr-info-row">
-
 <span>Subtotal</span>
-
-<b>
-${money(order.subtotal)}
-</b>
-
+<b>${money(order.subtotal)}</b>
 </div>
-
 
 <div class="nzr-info-row">
-
 <span>Diskon</span>
-
-<b>
--${money(order.discount)}
-</b>
-
+<b>-${money(order.discount)}</b>
 </div>
-
 
 <div class="nzr-total">
-
 ${money(order.total)}
-
 </div>
 
 </div>
-
 
 <div
 class="nzr-notice"
@@ -2450,9 +2029,7 @@ Bayar sesuai nominal:
 <br><br>
 
 <b style="font-size:18px;">
-
 ${money(order.total)}
-
 </b>
 
 <br><br>
@@ -2475,9 +2052,7 @@ alt="QRIS DANA Bisnis">
 
 <br>
 
-<b>
-QRIS DANA BISNIS
-</b>
+<b>QRIS DANA BISNIS</b>
 
 </div>
 
@@ -2485,8 +2060,6 @@ QRIS DANA BISNIS
 
 </div>
 
-
-<!-- PAYMENT PROOF -->
 
 <div
 class="nzr-card"
@@ -2503,7 +2076,6 @@ upload screenshot/foto bukti pembayaran.
 
 </p>
 
-
 <div class="nzr-upload">
 
 <input
@@ -2512,7 +2084,6 @@ id="paymentProofFile"
 accept="image/png,image/jpeg,image/webp">
 
 </div>
-
 
 <button
 class="btn btn-primary"
@@ -2523,24 +2094,22 @@ style="margin-top:10px;">
 
 </button>
 
-
 <div
 id="proofMsg"
 class="muted"
 style="margin-top:8px;">
 </div>
 
+<div id="proofPreview"></div>
+
 </div>
 
-
-<!-- LIVE PAYMENT STATUS -->
 
 <div class="nzr-card">
 
 <div class="eyebrow">
 LIVE PAYMENT STATUS
 </div>
-
 
 <div
 id="paymentLiveStatus"
@@ -2553,14 +2122,11 @@ Menunggu pembayaran...
 </div>
 
 
-<!-- ESTIMATION -->
-
 <div class="nzr-card">
 
 <div class="eyebrow">
 PROCESS ESTIMATION
 </div>
-
 
 <div
 id="paymentEstimate"
@@ -2596,9 +2162,7 @@ document.getElementById(
 ).textContent =
 "✓ COPIED";
 
-}catch{
-
-}
+}catch{}
 
 };
 
@@ -2607,12 +2171,117 @@ document.getElementById(
 "uploadProofBtn"
 ).onclick =
 () =>
-uploadProof(
-order.invoice
-);
-
+uploadProof(order.invoice);
 
 watchOrder();
+
+}
+
+
+/* =========================================================
+   COMPRESS IMAGE
+========================================================= */
+
+function compressImage(file){
+
+return new Promise(
+(resolve,reject) => {
+
+const reader =
+new FileReader();
+
+reader.onload =
+event => {
+
+const img =
+new Image();
+
+img.onload = () => {
+
+const maxWidth = 1200;
+
+const scale =
+Math.min(
+1,
+maxWidth / img.width
+);
+
+const canvas =
+document.createElement("canvas");
+
+canvas.width =
+Math.round(
+img.width * scale
+);
+
+canvas.height =
+Math.round(
+img.height * scale
+);
+
+const ctx =
+canvas.getContext("2d");
+
+ctx.drawImage(
+img,
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+let quality = .82;
+
+const make =
+() => {
+
+const data =
+canvas.toDataURL(
+"image/jpeg",
+quality
+);
+
+if(
+data.length > 850000 &&
+quality > .45
+){
+
+quality -= .08;
+
+make();
+
+return;
+
+}
+
+resolve(data);
+
+};
+
+make();
+
+};
+
+img.onerror =
+() =>
+reject(
+new Error("Gambar tidak dapat dibaca.")
+);
+
+img.src =
+event.target.result;
+
+};
+
+reader.onerror =
+() =>
+reject(
+new Error("Gagal membaca file.")
+);
+
+reader.readAsDataURL(file);
+
+});
 
 }
 
@@ -2628,12 +2297,8 @@ document.getElementById(
 "paymentProofFile"
 ).files[0];
 
-
 const msg =
-document.getElementById(
-"proofMsg"
-);
-
+document.getElementById("proofMsg");
 
 if(!file){
 
@@ -2647,21 +2312,13 @@ return;
 
 }
 
-
 const allowed = [
-
 "image/png",
-
 "image/jpeg",
-
 "image/webp"
-
 ];
 
-
-if(
-!allowed.includes(file.type)
-){
+if(!allowed.includes(file.type)){
 
 msg.className =
 "nzr-error";
@@ -2675,52 +2332,51 @@ return;
 
 
 /*
-  Batas 2.5 MB supaya tidak terlalu besar
-  untuk Firestore.
+  Kita kompres gambar terlebih dahulu.
+  Ini menghindari dokumen Firestore menjadi
+  terlalu besar.
 */
 
-if(
-file.size > 2.5 * 1024 * 1024
-){
+msg.className = "";
+
+msg.textContent =
+"Mengompres bukti pembayaran...";
+
+
+try{
+
+const compressed =
+await compressImage(file);
+
+
+if(compressed.length > 950000){
 
 msg.className =
 "nzr-error";
 
 msg.textContent =
-"Ukuran bukti maksimal 2.5 MB.";
+"Gambar masih terlalu besar. Gunakan foto/screenshot yang lebih kecil.";
 
 return;
 
 }
 
 
-msg.className = "";
-
 msg.textContent =
-"Memproses bukti pembayaran...";
+"Mengirim bukti pembayaran...";
 
-
-const reader =
-new FileReader();
-
-
-reader.onload =
-async () => {
-
-try{
 
 const {
 db
-} = await import(
-"./database.js"
-);
-
+} =
+await import("./database.js");
 
 const {
 doc,
 updateDoc,
 serverTimestamp
-} = await import(
+} =
+await import(
 "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js"
 );
 
@@ -2736,7 +2392,7 @@ invoice
 {
 
 payment_proof_url:
-String(reader.result),
+compressed,
 
 payment_proof_name:
 file.name,
@@ -2761,12 +2417,64 @@ serverTimestamp()
 );
 
 
+/* PREVIEW */
+
+document.getElementById(
+"proofPreview"
+).innerHTML =
+`
+<div class="nzr-proof-preview">
+<img
+src="${safe(compressed)}"
+alt="Bukti pembayaran">
+</div>
+`;
+
+
 msg.className =
 "nzr-success";
 
-
 msg.textContent =
-"Bukti pembayaran berhasil dikirim. Tunggu verifikasi admin.";
+"Bukti pembayaran berhasil dikirim. Mengalihkan ke Cek Transaksi...";
+
+
+/*
+  BUG FIX:
+  Payment modal ditutup,
+  invoice dipasang ke pencarian,
+  lalu halaman scroll ke Cek Transaksi.
+*/
+
+document.getElementById(
+"invoiceSearch"
+).value =
+invoice;
+
+localStorage.setItem(
+"nanzera_last_invoice",
+invoice
+);
+
+saveDraft();
+
+
+setTimeout(
+() => {
+
+closePayment();
+
+document.getElementById(
+"status"
+).scrollIntoView({
+behavior:"smooth",
+block:"start"
+});
+
+watchOrder();
+
+},
+700
+);
 
 
 }catch(error){
@@ -2777,16 +2485,79 @@ msg.className =
 "nzr-error";
 
 msg.textContent =
-"Gagal mengirim bukti pembayaran.";
+"Gagal mengirim bukti pembayaran. Coba lagi.";
 
 }
+
+}
+
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+const timelineStatuses = [
+
+"WAITING_PAYMENT",
+
+"PAYMENT_CONFIRMED",
+
+"WAITING_SCHEDULE",
+
+"SCHEDULE_CONFIRMED",
+
+"ADD_USERNAME_ADMIN",
+
+"TRADING",
+
+"COMPLETED"
+
+];
+
+
+const timelineLabels = {
+
+WAITING_PAYMENT:
+"Pembayaran",
+
+PAYMENT_CONFIRMED:
+"Dibayar",
+
+WAITING_SCHEDULE:
+"Jadwal",
+
+SCHEDULE_CONFIRMED:
+"Jadwal OK",
+
+ADD_USERNAME_ADMIN:
+"Add Username Admin",
+
+TRADING:
+"Trade",
+
+COMPLETED:
+"Selesai"
 
 };
 
 
-reader.readAsDataURL(file);
+const timelineIcons = {
 
-}
+WAITING_PAYMENT:"💳",
+
+PAYMENT_CONFIRMED:"✓",
+
+WAITING_SCHEDULE:"🕐",
+
+SCHEDULE_CONFIRMED:"📅",
+
+ADD_USERNAME_ADMIN:"👤",
+
+TRADING:"🤝",
+
+COMPLETED:"🏆"
+
+};
 
 
 /* =========================================================
@@ -2798,25 +2569,17 @@ window.watchOrder = () => {
 if(stopOrderWatch)
 stopOrderWatch();
 
-
 const invoice =
 document.getElementById(
 "invoiceSearch"
-).value
-.trim()
-.toUpperCase();
-
+).value.trim().toUpperCase();
 
 const box =
 document.getElementById(
 "orderStatus"
 );
 
-
-box.classList.remove(
-"hidden"
-);
-
+box.classList.remove("hidden");
 
 if(!invoice){
 
@@ -2831,15 +2594,12 @@ return;
 
 }
 
-
 localStorage.setItem(
 "nanzera_last_invoice",
 invoice
 );
 
-
 saveDraft();
-
 
 box.innerHTML =
 `
@@ -2847,7 +2607,6 @@ box.innerHTML =
 Memantau transaksi...
 </p>
 `;
-
 
 stopOrderWatch =
 watchTransaction(
@@ -2869,25 +2628,257 @@ return;
 
 
 /* =========================================================
-   STATUS LABEL
+   CANCELLED
 ========================================================= */
 
-const statuses = [
+if(
+order.status === "CANCELLED"
+){
 
-"WAITING_PAYMENT",
+box.innerHTML =
 
-"PAYMENT_CONFIRMED",
+`
+<div class="status-card">
 
-"WAITING_SCHEDULE",
+<div class="eyebrow">
+TRANSAKSI DIBATALKAN
+</div>
 
-"SCHEDULE_CONFIRMED",
+<div class="nzr-invoice">
+${safe(order.invoice_id)}
+</div>
 
-"TRADING",
+<h3>
+❌ Dibatalkan
+</h3>
 
-"COMPLETED"
+<p class="muted">
+${safe(
+order.cancellation_reason ||
+"Transaksi dibatalkan oleh admin."
+)}
+</p>
 
-];
+${
+order.admin_message
+?
+`
+<div class="nzr-message">
+<b>Pesan Admin</b>
+<br>
+${safe(order.admin_message)}
+</div>
+`
+:
+""
+}
 
+</div>
+`;
+
+return;
+
+}
+
+
+/* =========================================================
+   STATUS INDEX
+========================================================= */
+
+let currentIndex =
+timelineStatuses.indexOf(
+order.status
+);
+
+
+/*
+  Beberapa admin panel mungkin masih memakai
+  TRADING langsung setelah SCHEDULE_CONFIRMED.
+*/
+
+if(currentIndex < 0){
+
+if(order.status === "TRADING")
+currentIndex = timelineStatuses.indexOf("TRADING");
+
+else if(
+order.status === "COMPLETED"
+)
+currentIndex = timelineStatuses.indexOf("COMPLETED");
+
+else
+currentIndex = 0;
+
+}
+
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+const progressPercent =
+currentIndex /
+(timelineStatuses.length - 1)
+* 94;
+
+
+const timeline =
+timelineStatuses.map(
+(s,i) => {
+
+const done =
+i <= currentIndex;
+
+const current =
+i === currentIndex;
+
+return `
+
+<div
+class="nzr-step
+${done ? "done" : ""}
+${current ? "current" : ""}">
+
+<div class="nzr-dot">
+
+${timelineIcons[s]}
+
+</div>
+
+<div class="nzr-step-title">
+
+${timelineLabels[s]}
+
+</div>
+
+<div class="nzr-step-sub">
+
+${
+s === "ADD_USERNAME_ADMIN"
+&& current
+?
+"Username admin tersedia"
+:
+done
+?
+"Selesai"
+:
+"Menunggu"
+}
+
+</div>
+
+</div>
+
+`;
+
+}
+).join("");
+
+
+/* =========================================================
+   ADMIN USERNAME
+========================================================= */
+
+let adminBox = "";
+
+
+/*
+  Username hanya muncul jika transaksi sudah
+  mencapai ADD_USERNAME_ADMIN atau sesudahnya.
+*/
+
+if(
+currentIndex >=
+timelineStatuses.indexOf(
+"ADD_USERNAME_ADMIN"
+)
+){
+
+adminBox =
+
+`
+
+<div class="nzr-admin-box">
+
+<div class="eyebrow">
+ADMIN ROBLOX
+</div>
+
+<div class="nzr-admin-user">
+vario2026 / xbiglads
+</div>
+
+<div class="muted">
+Username admin Roblox untuk proses trade.
+</div>
+
+<div class="nzr-sacrifice">
+🍎 Siapkan buah tumbal kalian 🍎
+</div>
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================================
+   SCHEDULE PROPOSAL
+========================================================= */
+
+let scheduleAction = "";
+
+if(order.admin_schedule_proposal){
+
+scheduleAction =
+
+`
+
+<div
+class="nzr-card"
+style="margin-top:15px;">
+
+<div class="eyebrow">
+USULAN JADWAL ADMIN
+</div>
+
+<h3>
+${safe(order.admin_schedule_proposal)}
+</h3>
+
+<p class="muted">
+Admin mengusulkan jadwal berbeda
+dari jadwal yang kamu pilih.
+</p>
+
+<div class="nzr-actions">
+
+<button
+class="btn btn-primary"
+id="acceptSchedule">
+✓ TERIMA
+</button>
+
+<button
+class="btn"
+id="rejectSchedule">
+✕ TOLAK
+</button>
+
+</div>
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================================
+   STATUS LABEL
+========================================================= */
 
 const labels = {
 
@@ -2903,6 +2894,9 @@ WAITING_SCHEDULE:
 SCHEDULE_CONFIRMED:
 "Jadwal Trade Dikonfirmasi",
 
+ADD_USERNAME_ADMIN:
+"Add Username Admin",
+
 TRADING:
 "Proses Trade",
 
@@ -2913,181 +2907,6 @@ CANCELLED:
 "Dibatalkan"
 
 };
-
-
-const index =
-Math.max(
-0,
-statuses.indexOf(
-order.status
-)
-);
-
-
-/* =========================================================
-   CANCELLED
-========================================================= */
-
-if(
-order.status === "CANCELLED"
-){
-
-box.innerHTML =
-
-`
-
-<div class="status-card">
-
-<div class="eyebrow">
-TRANSAKSI DIBATALKAN
-</div>
-
-
-<div class="nzr-invoice">
-
-${safe(order.invoice_id)}
-
-</div>
-
-
-<h3>
-❌ Dibatalkan
-</h3>
-
-
-<p class="muted">
-
-${safe(
-order.cancellation_reason ||
-"Transaksi dibatalkan oleh admin."
-)}
-
-</p>
-
-
-${
-order.admin_message
-
-?
-
-`
-
-<div class="nzr-message">
-
-<b>Pesan Admin</b>
-
-<br>
-
-${safe(order.admin_message)}
-
-</div>
-
-`
-
-:
-
-""
-
-}
-
-</div>
-
-`;
-
-return;
-
-}
-
-
-/* =========================================================
-   TIMELINE
-========================================================= */
-
-const timeline =
-
-statuses.map(
-
-(s,i) =>
-
-`
-
-<div
-class="t ${i <= index ? "done" : ""}">
-
-<div class="dot"></div>
-
-${labels[s]}
-
-</div>
-
-`
-
-).join("");
-
-
-/* =========================================================
-   ADMIN SCHEDULE
-========================================================= */
-
-let scheduleAction = "";
-
-
-if(
-order.admin_schedule_proposal
-){
-
-scheduleAction =
-
-`
-
-<div
-class="nzr-card"
-style="margin-top:15px;">
-
-<div class="eyebrow">
-USULAN JADWAL ADMIN
-</div>
-
-
-<h3>
-${safe(order.admin_schedule_proposal)}
-</h3>
-
-
-<p class="muted">
-
-Admin mengusulkan jadwal berbeda
-dari jadwal yang kamu pilih.
-
-</p>
-
-
-<div class="nzr-actions">
-
-<button
-class="btn btn-primary"
-id="acceptSchedule">
-
-✓ TERIMA
-
-</button>
-
-
-<button
-class="btn"
-id="rejectSchedule">
-
-✕ TOLAK
-
-</button>
-
-</div>
-
-</div>
-
-`;
-
-}
 
 
 /* =========================================================
@@ -3104,221 +2923,142 @@ box.innerHTML =
 LIVE ORDER STATUS
 </div>
 
-
 <div class="nzr-invoice">
-
 ${safe(order.invoice_id)}
-
 </div>
 
-
 <h3>
-
 ${safe(
 labels[order.status] ||
 order.status
 )}
-
 </h3>
 
-
 <p class="muted">
-
 ${safe(order.product_name)}
-
 •
-
 ${money(order.total_price)}
-
 </p>
 
 
-<div class="timeline">
+<div class="nzr-timeline-wrap">
+
+<div class="nzr-timeline">
+
+<div class="nzr-line-bg"></div>
+
+<div
+class="nzr-line-progress"
+style="width:${progressPercent}%">
+</div>
 
 ${timeline}
 
 </div>
 
+</div>
+
+
+${adminBox}
+
 
 ${
 order.payment_status
 ?
-
 `
-
 <div class="nzr-payment-status">
-
-<b>
-Status pembayaran:
-</b>
-
+<b>Status pembayaran:</b>
 <br>
-
 ${safe(order.payment_status)}
-
 </div>
-
 `
-
 :
-
 ""
-
 }
 
 
 ${
 order.estimated_process
-
 ?
-
 `
-
 <div class="nzr-estimate">
-
-<b>
-📊 Estimasi proses
-</b>
-
+<b>📊 Estimasi proses</b>
 <br><br>
-
 ${safe(order.estimated_process)}
-
 </div>
-
 `
-
 :
-
 ""
-
 }
 
 
 ${
 order.requested_schedule
-
 ?
-
 `
-
-<div
-class="nzr-message">
-
-<b>
-🗓 Jadwal yang diminta
-</b>
-
+<div class="nzr-message">
+<b>🗓 Jadwal yang diminta</b>
 <br>
-
 ${safe(order.requested_schedule)}
-
 </div>
-
 `
-
 :
-
 ""
-
 }
 
 
 ${
 order.trade_schedule
-
 ?
-
 `
-
-<div
-class="nzr-message">
-
-<b>
-🗓 Jadwal trade
-</b>
-
+<div class="nzr-message">
+<b>🗓 Jadwal trade</b>
 <br>
-
 ${safe(order.trade_schedule)}
-
 </div>
-
 `
-
 :
-
 ""
-
 }
 
 
 ${
 order.admin_message
-
 ?
-
 `
-
-<div
-class="nzr-message">
-
-<b>
-💬 Pesan Admin
-</b>
-
+<div class="nzr-message">
+<b>💬 Pesan Admin</b>
 <br>
-
 ${safe(order.admin_message)}
-
 </div>
-
 `
-
 :
-
 ""
-
 }
 
 
 ${
 order.redeem_code
-
 ?
-
 `
-
-<div
-class="nzr-message">
-
-<b>
-🔑 Kode Transaksi
-</b>
-
+<div class="nzr-message">
+<b>🔑 Kode Transaksi</b>
 <br><br>
-
-<strong style="font-size:20px;letter-spacing:.1em;">
-
+<strong style="
+font-size:20px;
+letter-spacing:.1em;">
 ${safe(order.redeem_code)}
-
 </strong>
-
 </div>
-
 `
-
 :
-
 ""
-
 }
 
 
 ${scheduleAction}
 
 </div>
-
 `;
 
 
@@ -3331,12 +3071,10 @@ document.getElementById(
 "acceptSchedule"
 );
 
-
 const reject =
 document.getElementById(
 "rejectSchedule"
 );
-
 
 if(accept){
 
@@ -3348,7 +3086,6 @@ true
 );
 
 }
-
 
 if(reject){
 
@@ -3363,7 +3100,7 @@ false
 
 
 /* =========================================================
-   PAYMENT MODAL LIVE UPDATE
+   PAYMENT LIVE STATUS
 ========================================================= */
 
 const paymentStatus =
@@ -3371,13 +3108,11 @@ document.getElementById(
 "paymentLiveStatus"
 );
 
-
 if(paymentStatus){
 
 paymentStatus.innerHTML =
 
 `
-
 <b>
 ${safe(
 labels[order.status] ||
@@ -3392,7 +3127,6 @@ ${safe(
 order.payment_status ||
 "UNPAID"
 )}
-
 `;
 
 }
@@ -3403,19 +3137,15 @@ document.getElementById(
 "paymentEstimate"
 );
 
-
 if(estimate){
 
 estimate.textContent =
-
 order.estimated_process ||
 "Menunggu pembaruan admin.";
 
 }
 
-}
-
-);
+});
 
 };
 
@@ -3431,21 +3161,17 @@ accepted
 
 try{
 
-const {
-db
-} = await import(
-"./database.js"
-);
-
+const {db} =
+await import("./database.js");
 
 const {
 doc,
 updateDoc,
 serverTimestamp
-} = await import(
+} =
+await import(
 "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js"
 );
-
 
 await updateDoc(
 
@@ -3472,13 +3198,14 @@ serverTimestamp(),
 
 admin_message:
 accepted
-? "Jadwal trade telah diterima pelanggan."
-: "Pelanggan menolak jadwal yang ditawarkan."
+?
+"Jadwal trade telah diterima pelanggan."
+:
+"Pelanggan menolak jadwal yang ditawarkan."
 
 }
 
 );
-
 
 }catch(error){
 
@@ -3494,7 +3221,7 @@ alert(
 
 
 /* =========================================================
-   SEARCH / STATUS
+   CHECK STATUS
 ========================================================= */
 
 document.getElementById(
@@ -3509,13 +3236,8 @@ document.getElementById(
 "keydown",
 event => {
 
-if(
-event.key === "Enter"
-){
-
+if(event.key === "Enter")
 watchOrder();
-
-}
 
 }
 );
@@ -3528,7 +3250,6 @@ watchOrder();
 document.querySelectorAll(
 ".filter"
 ).forEach(
-
 button => {
 
 button.onclick = () => {
@@ -3540,15 +3261,10 @@ x =>
 x.classList.remove("active")
 );
 
-
-button.classList.add(
-"active"
-);
-
+button.classList.add("active");
 
 activeCat =
 button.dataset.cat;
-
 
 renderProducts();
 
@@ -3597,28 +3313,21 @@ encodeURIComponent(
 
 
 /* =========================================================
-   FIREBASE REALTIME PRODUCTS
+   FIREBASE PRODUCTS
 ========================================================= */
 
 watchProducts(
-
 data => {
 
 products =
 data || [];
 
-
 renderProducts();
 
-
-if(!selected){
-
+if(!selected)
 restoreDraft();
 
 }
-
-}
-
 );
 
 
@@ -3630,7 +3339,6 @@ const lastInvoice =
 localStorage.getItem(
 "nanzera_last_invoice"
 );
-
 
 if(lastInvoice){
 
@@ -3644,4 +3352,4 @@ lastInvoice;
 </script>
 
 </body>
- </html>
+   </html>
