@@ -1402,7 +1402,7 @@ ${p.popular ? '<span class="badge pop">POPULAR</span>' : ""}
 ${imageUrl ? `
 <img src="${safe(imageUrl)}" alt="${safe(p.name)}" loading="lazy"
  onerror="this.style.display='none';this.parentElement.classList.add('image-error');">
-<div class="fruit-image-fallback">${safe(p.name)}</div>
+<div class="fruit-image-fallback">GAMBAR TIDAK TERSEDIA</div>
 ` : `<div class="fruit-placeholder">${safe(p.name || "FRUIT")}</div>`}
 </div>
 <div class="product-info">
@@ -1411,7 +1411,7 @@ ${imageUrl ? `
 <div class="price">${money(p.price)}</div>
 <div class="stock-line">● STOK TERSEDIA: ${stock}</div>
 <div class="product-actions">
-<button class="btn btn-primary" ${out?"disabled":""} onclick="openCheckout(${JSON.stringify(p.id)})">ORDER NOW 🛒</button>
+<button type="button" class="btn btn-primary order-now-btn" ${out?"disabled":""} data-product-id="${safe(p.id)}">ORDER NOW 🛒</button>
 </div>
 </div>
 </article>`;
@@ -1457,41 +1457,101 @@ function closeAllFruitsPage(){
 
 window.openCheckout = id => {
 
-selected =
-products.find(
-p => p.id === id
+try {
+
+selected = products.find(
+  p => String(p.id) === String(id)
 );
 
-if(!selected) return;
+if(!selected){
+  console.error("NANZERA: Produk tidak ditemukan", id);
+  alert("Produk tidak ditemukan. Silakan refresh halaman.");
+  return;
+}
 
 voucher = null;
 
-document.getElementById(
-"checkoutProduct"
-).textContent =
-`${selected.name} — ${money(selected.price)} / unit`;
+const modal = document.getElementById("checkoutModal");
+const productEl = document.getElementById("checkoutProduct");
+const qtyEl = document.getElementById("qty");
+const voucherEl = document.getElementById("voucherCode");
+const voucherMsgEl = document.getElementById("voucherMsg");
+const checkoutMsgEl = document.getElementById("checkoutMsg");
 
-document.getElementById("qty").value = 1;
+if(!modal || !productEl || !qtyEl){
+  console.error("NANZERA: Elemen checkout tidak lengkap.");
+  alert("Menu checkout tidak dapat dibuka. Silakan refresh halaman.");
+  return;
+}
 
-document.getElementById(
-"voucherCode"
-).value = "";
+productEl.textContent = `${selected.name} — ${money(selected.price)} / unit`;
+qtyEl.value = 1;
+if(voucherEl) voucherEl.value = "";
+if(voucherMsgEl){
+  voucherMsgEl.textContent = "";
+  voucherMsgEl.className = "";
+}
+if(checkoutMsgEl){
+  checkoutMsgEl.textContent = "";
+  checkoutMsgEl.className = "muted";
+}
 
-document.getElementById(
-"voucherMsg"
-).textContent = "";
+/* Buka modal lebih dahulu agar auto-save/kalkulasi tidak dapat membuat
+   tombol ORDER NOW terlihat seperti tidak bekerja. */
+modal.classList.remove("hidden");
 
-document.getElementById(
-"checkoutMsg"
-).textContent = "";
+try {
+  updateTotal();
+} catch(error) {
+  console.error("NANZERA updateTotal error:", error);
+  if(checkoutMsgEl){
+    checkoutMsgEl.textContent = "Checkout terbuka. Total akan diperbarui saat data diisi.";
+  }
+}
 
-updateTotal();
-
-document.getElementById(
-"checkoutModal"
-).classList.remove("hidden");
+} catch(error) {
+  console.error("NANZERA openCheckout error:", error);
+  alert("Checkout gagal dibuka. Silakan refresh halaman.");
+}
 
 };
+
+
+/* =========================================================
+   ORDER NOW EVENT HANDLER
+========================================================= */
+
+const productGridEl = document.getElementById("productGrid");
+const allFruitGridEl = document.getElementById("allFruitGrid");
+
+function handleOrderNowClick(event){
+  const button = event.target.closest(".order-now-btn");
+  if(!button) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  const productId = button.dataset.productId;
+  if(!productId) return;
+
+  const originalText = button.innerHTML;
+  button.disabled = true;
+  button.innerHTML = "MEMBUKA CHECKOUT...";
+
+  try {
+    window.openCheckout(productId);
+  } finally {
+    setTimeout(() => {
+      if(document.body.contains(button)){
+        button.disabled = false;
+        button.innerHTML = originalText;
+      }
+    }, 500);
+  }
+}
+
+productGridEl?.addEventListener("click", handleOrderNowClick);
+allFruitGridEl?.addEventListener("click", handleOrderNowClick);
 
 
 /* =========================================================
@@ -1823,8 +1883,9 @@ orderBtn.innerHTML = "MEMPROSES...";
 
 /* CREATE */
 
-const result =
-await createOrderWithStock(
+let result;
+try {
+result = await createOrderWithStock(
 invoice,
 selected.id,
 qty,
@@ -1880,9 +1941,19 @@ estimated_process:
 
 }
 );
+} catch(error) {
+  console.error("NANZERA create order error:", error);
+  orderBtn.disabled = false;
+  orderBtn.innerHTML = orderBtn.dataset.oldText || "BUAT PESANAN<br>& LANJUT PEMBAYARAN";
+  document.getElementById("checkoutMsg").textContent = "Gagal membuat pesanan. Coba lagi.";
+  return;
+}
 
 
 if(!result.success){
+
+orderBtn.disabled = false;
+orderBtn.innerHTML = orderBtn.dataset.oldText || "BUAT PESANAN<br>& LANJUT PEMBAYARAN";
 
 document.getElementById(
 "checkoutMsg"
