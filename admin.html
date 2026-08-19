@@ -1111,6 +1111,12 @@ function statusClass(status){
 }
 
 
+function firebaseWriteError(error){
+ const code=error?.code || "";
+ if(code.includes("permission-denied")) return "Akses Firebase ditolak. Pastikan akun login memiliki dokumen admins dengan ID UID yang sama, lalu Publish Firestore Rules terbaru.";
+ return error?.message || "Gagal menyimpan data.";
+}
+
 /* ============================================================
    LOGIN
 ============================================================ */
@@ -2581,100 +2587,40 @@ window.editVoucher=id=>{
 
 
 window.saveVoucher=async()=>{
-
- const code=
-  document.getElementById("voucherCode")
-  .value
-  .trim()
-  .toUpperCase();
-
- const discount=
-  Number(
-   document.getElementById("voucherDiscount")
-   .value||0
-  );
-
- const start=
-  document.getElementById("voucherStart").value;
-
- const end=
-  document.getElementById("voucherEnd").value;
-
- const limit=
-  Math.max(
-   1,
-   Number(
-    document.getElementById("voucherLimit")
-    .value||1
-   )
-  );
-
- const active=
-  document.getElementById("voucherActive")
-  .value==="true";
-
- if(!code){
-
-  document.getElementById("voucherMsg")
-  .textContent="Kode voucher wajib diisi.";
-
-  return;
-
- }
-
- if(discount<=0||discount>100){
-
-  document.getElementById("voucherMsg")
-  .textContent="Diskon harus 1-100%.";
-
-  return;
-
- }
-
- if(start&&end&&
-    new Date(end)<=new Date(start)){
-
-  document.getElementById("voucherMsg")
-  .textContent="Tanggal berakhir harus setelah tanggal mulai.";
-
-  return;
-
- }
-
+ const msg=document.getElementById("voucherMsg");
+ const code=document.getElementById("voucherCode").value.trim().toUpperCase();
+ const discount=Number(document.getElementById("voucherDiscount").value||0);
+ const start=document.getElementById("voucherStart").value;
+ const end=document.getElementById("voucherEnd").value;
+ const limit=Math.max(1,Math.floor(Number(document.getElementById("voucherLimit").value||1)));
+ const active=document.getElementById("voucherActive").value==="true";
+ if(!code){msg.textContent="Kode voucher wajib diisi.";return;}
+ if(!/^[A-Z0-9_-]{3,40}$/.test(code)){msg.textContent="Kode voucher hanya boleh berisi A-Z, 0-9, _ atau -.";return;}
+ if(discount<=0||discount>100){msg.textContent="Diskon harus 1-100%.";return;}
+ if(start&&end&&new Date(end)<=new Date(start)){msg.textContent="Tanggal berakhir harus setelah tanggal mulai.";return;}
  const id=editingVoucherId||code;
-
  try{
-
-  await setDoc(
-   doc(db,"vouchers",id),
-   {
-    code,
-    discount_percent:discount,
-    start_at:start||null,
-    end_at:end||null,
-    usage_limit:limit,
-    used_count:editingVoucherId
-      ? (vouchers.find(x=>x.id===editingVoucherId)?.used_count||0)
-      : 0,
-    active,
-    updated_at:serverTimestamp()
-   },
-   {merge:true}
-  );
-
-  toast("Voucher berhasil disimpan.");
-
-  closeModal("voucherModal");
-
+   if(!editingVoucherId){
+     const existing=vouchers.find(v=>String(v.code||v.id||"").toUpperCase()===code);
+     if(existing){msg.textContent="Kode voucher sudah digunakan. Gunakan kode lain.";return;}
+   }
+   await setDoc(doc(db,"vouchers",id),{
+     code,
+     discount_percent:discount,
+     start_at:start||null,
+     end_at:end||null,
+     usage_limit:limit,
+     used_count:editingVoucherId ? Number(vouchers.find(x=>x.id===editingVoucherId)?.used_count||0) : 0,
+     active,
+     updated_at:serverTimestamp()
+   },{merge:true});
+   toast("Voucher berhasil disimpan.");
+   closeModal("voucherModal");
  }catch(error){
-
-  document.getElementById("voucherMsg")
-  .textContent=error.message;
-
+   console.error(error);
+   msg.textContent=firebaseWriteError(error);
  }
-
 };
-
 
 window.removeVoucher=async id=>{
 
