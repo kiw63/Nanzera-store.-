@@ -1107,25 +1107,49 @@ function calculateDiscount(subtotal){
 
 if(!voucher) return 0;
 
-if(
-String(voucher.type || "").toLowerCase()
-===
-"fixed"
-){
+/*
+  Support the voucher structure currently used by admin.html:
+  discount_percent
+
+  Also keep backward compatibility with the older structure:
+  type / value / max_discount
+*/
+
+const type =
+String(voucher.type || "").toLowerCase();
+
+if(type === "fixed"){
 
 return Math.min(
 subtotal,
-Number(voucher.value || 0)
+Math.max(0, Number(voucher.value || 0))
 );
 
 }
 
-const percent =
+let percent;
+
+if(
+voucher.discount_percent !== undefined &&
+voucher.discount_percent !== null
+){
+
+percent =
+Number(voucher.discount_percent);
+
+}else{
+
+percent =
+Number(voucher.value || 0);
+
+}
+
+percent =
 Math.max(
 0,
 Math.min(
 100,
-Number(voucher.value || 0)
+percent
 )
 );
 
@@ -1140,12 +1164,15 @@ voucher.max_discount !== null
 discount =
 Math.min(
 discount,
-Number(voucher.max_discount)
+Math.max(0, Number(voucher.max_discount))
 );
 
 }
 
-return discount;
+return Math.max(
+0,
+Math.min(subtotal, discount)
+);
 
 }
 
@@ -1304,8 +1331,10 @@ if(!selected) return;
 const qty =
 Math.max(
 1,
+Math.floor(
 Number(
 document.getElementById("qty").value || 1
+)
 )
 );
 
@@ -1413,6 +1442,7 @@ p.image_url
 <img
 src="${safe(p.image_url)}"
 alt="${safe(p.name)}"
+onerror="this.onerror=null; this.style.display='none'; this.parentElement.insertAdjacentHTML('beforeend','<div class=&quot;fruit-placeholder&quot;>FRUIT</div>');"
 style="
 max-width:78%;
 max-height:175px;
@@ -1682,8 +1712,10 @@ document.getElementById(
 const qty =
 Math.max(
 1,
+Math.floor(
 Number(
 document.getElementById("qty").value || 1
+)
 )
 );
 
@@ -1856,7 +1888,11 @@ document.getElementById(
 
 /* CREATE */
 
-const result =
+let result;
+
+try{
+
+result =
 await createOrderWithStock(
 invoice,
 selected.id,
@@ -1884,7 +1920,7 @@ total,
 voucher_code:
 voucher?.code ||
 voucher?.id ||
-null,
+"",
 
 voucher_id:
 voucher?.id ||
@@ -1916,6 +1952,20 @@ estimated_process:
 
 }
 );
+
+}catch(error){
+
+console.error("NANZERA CREATE ORDER ERROR:", error);
+
+document.getElementById(
+"checkoutMsg"
+).textContent =
+error?.message ||
+"Gagal membuat pesanan. Silakan coba lagi.";
+
+return;
+
+}
 
 
 if(!result.success){
@@ -1954,7 +2004,25 @@ saveDraft();
 
 closeCheckout();
 
+try{
+
 showPaymentPage(currentOrder);
+
+}catch(error){
+
+console.error("NANZERA PAYMENT PAGE ERROR:", error);
+
+document.getElementById(
+"checkoutMsg"
+).textContent =
+"Pesanan berhasil dibuat, tetapi halaman pembayaran gagal dibuka. Invoice: " +
+invoice;
+
+document.getElementById(
+"paymentModal"
+).classList.remove("hidden");
+
+}
 
 };
 
