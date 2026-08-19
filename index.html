@@ -349,6 +349,16 @@
     margin-right:-4px;
   }
 }
+
+/* NANZERA STORE - compact featured/all fruits */
+.featured-actions{display:flex;justify-content:center;margin:18px 0 24px;}
+.all-fruits-actions{display:flex;justify-content:flex-end;margin:0 0 20px;}
+.fruit-art img{width:auto;max-width:82%;max-height:155px;object-fit:contain;display:block;}
+.fruit-art.image-error .fruit-image-fallback{display:grid;}
+.fruit-image-fallback{display:none;position:absolute;inset:0;place-items:center;color:#8991a2;font-weight:900;font-size:12px;text-transform:uppercase;}
+.all-fruits-page{padding-top:20px;}
+@media(max-width:600px){.fruit-art{height:160px}.fruit-art img{max-height:135px}.product-info{padding:14px}.price{font-size:22px}}
+
 </style>
 </head>
 
@@ -507,6 +517,10 @@ LIMITED
 
 </div>
 
+<div class="featured-actions">
+  <button class="btn btn-primary" type="button" id="viewAllFruitsBtn">🌐 LIHAT SEMUA BUAH</button>
+</div>
+
 <div id="productGrid" class="product-grid">
 
 <div class="panel">
@@ -518,6 +532,38 @@ Memuat produk...
 </div>
 </section>
 
+
+
+<!-- ALL FRUITS -->
+<section id="allFruitsPage" class="section all-fruits-page nzr-hidden">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">COMPLETE CATALOG</div>
+        <h2 class="section-title">ALL FRUITS</h2>
+        <div class="section-sub">Semua fruit yang tersedia di NANZERA STORE.</div>
+      </div>
+      <div class="toolbar">
+        <div class="search">
+          <input id="allFruitSearch" placeholder="Cari semua buah...">
+          <button type="button">⌕</button>
+        </div>
+      </div>
+    </div>
+    <div class="filters" id="allFruitFilters">
+      <button class="filter active" data-all-cat="ALL">ALL</button>
+      <button class="filter" data-all-cat="MYTHICAL">MYTHICAL</button>
+      <button class="filter" data-all-cat="LEGENDARY">LEGENDARY</button>
+      <button class="filter" data-all-cat="LIMITED">LIMITED</button>
+    </div>
+    <div class="all-fruits-actions">
+      <button class="btn" type="button" id="backFeaturedBtn">← KEMBALI KE FEATURED</button>
+    </div>
+    <div id="allFruitGrid" class="product-grid">
+      <div class="panel">Memuat semua buah...</div>
+    </div>
+  </div>
+</section>
 
 <!-- HOW -->
 <section id="how" class="section">
@@ -959,6 +1005,7 @@ const QRIS_IMAGE_URL =
 
 let products = [];
 let activeCat = "ALL";
+let allFruitCat = "ALL";
 let selected = null;
 let voucher = null;
 let stopOrderWatch = null;
@@ -1107,49 +1154,25 @@ function calculateDiscount(subtotal){
 
 if(!voucher) return 0;
 
-/*
-  Support the voucher structure currently used by admin.html:
-  discount_percent
-
-  Also keep backward compatibility with the older structure:
-  type / value / max_discount
-*/
-
-const type =
-String(voucher.type || "").toLowerCase();
-
-if(type === "fixed"){
+if(
+String(voucher.type || "").toLowerCase()
+===
+"fixed"
+){
 
 return Math.min(
 subtotal,
-Math.max(0, Number(voucher.value || 0))
+Number(voucher.discount_percent ?? voucher.value ?? 0)
 );
 
 }
 
-let percent;
-
-if(
-voucher.discount_percent !== undefined &&
-voucher.discount_percent !== null
-){
-
-percent =
-Number(voucher.discount_percent);
-
-}else{
-
-percent =
-Number(voucher.value || 0);
-
-}
-
-percent =
+const percent =
 Math.max(
 0,
 Math.min(
 100,
-percent
+Number(voucher.discount_percent ?? voucher.value ?? 0)
 )
 );
 
@@ -1164,15 +1187,12 @@ voucher.max_discount !== null
 discount =
 Math.min(
 discount,
-Math.max(0, Number(voucher.max_discount))
+Number(voucher.max_discount)
 );
 
 }
 
-return Math.max(
-0,
-Math.min(subtotal, discount)
-);
+return discount;
 
 }
 
@@ -1329,14 +1349,7 @@ function updateTotal(){
 if(!selected) return;
 
 const qty =
-Math.max(
-1,
-Math.floor(
-Number(
-document.getElementById("qty").value || 1
-)
-)
-);
+Math.max(1, Math.floor(Number(document.getElementById("qty").value || 1)));
 
 const subtotal =
 Number(selected.price || 0) * qty;
@@ -1375,138 +1388,68 @@ saveDraft();
    PRODUCTS
 ========================================================= */
 
-window.renderProducts = () => {
+window.renderProductCard = p => {
 
-const query =
-(
-document.getElementById("search").value || ""
-).toLowerCase();
-
-const list =
-products.filter(
-p =>
-(
-activeCat === "ALL" ||
-String(p.category || "").toUpperCase() === activeCat
-)
-&&
-String(p.name || "").toLowerCase().includes(query)
-);
-
-const grid =
-document.getElementById("productGrid");
-
-if(!list.length){
-
-grid.innerHTML =
-`
-<div class="panel">
-Produk tidak ditemukan.
-</div>
-`;
-
-return;
-
-}
-
-grid.innerHTML =
-list.map(p => {
-
-const stock =
-Number(p.stock || 0);
-
-const out =
-stock <= 0;
+const stock = Number(p.stock || 0);
+const out = stock <= 0;
+const imageUrl = String(p.image_url || p.imageUrl || p.image || "").trim();
 
 return `
 <article class="product-card">
-
 <div class="fruit-art">
-
-${
-p.popular
-?
-'<span class="badge pop">POPULAR</span>'
-:
-""
-}
-
-<span class="badge ${out?"out":"stock"}">
-${out?"OUT OF STOCK":"IN STOCK"}
-</span>
-
-${
-p.image_url
-?
-`
-<img
-src="${safe(p.image_url)}"
-alt="${safe(p.name)}"
-onerror="this.onerror=null; this.style.display='none'; this.parentElement.insertAdjacentHTML('beforeend','<div class=&quot;fruit-placeholder&quot;>FRUIT</div>');"
-style="
-max-width:78%;
-max-height:175px;
-object-fit:contain;
-">
-`
-:
-`
-<div class="fruit-placeholder">
-FRUIT
+${p.popular ? '<span class="badge pop">POPULAR</span>' : ""}
+<span class="badge ${out?"out":"stock"}">${out?"OUT OF STOCK":"IN STOCK"}</span>
+${imageUrl ? `
+<img src="${safe(imageUrl)}" alt="${safe(p.name)}" loading="lazy"
+ onerror="this.style.display='none';this.parentElement.classList.add('image-error');">
+<div class="fruit-image-fallback">${safe(p.name)}</div>
+` : `<div class="fruit-placeholder">${safe(p.name || "FRUIT")}</div>`}
 </div>
-`
-}
-
-</div>
-
 <div class="product-info">
-
-<div class="product-name">
-
-${safe(p.name)}
-
-<span class="rarity">
-${safe(p.category || "MYTHICAL")}
-</span>
-
-</div>
-
-<p>
-${safe(
-p.description ||
-"Fruit Blox Fruits dengan proses order melalui website."
-)}
-</p>
-
-<div class="price">
-${money(p.price)}
-</div>
-
-<div class="stock-line">
-● STOK TERSEDIA: ${stock}
-</div>
-
+<div class="product-name">${safe(p.name)} <span class="rarity">${safe(p.category || "MYTHICAL")}</span></div>
+<p>${safe(p.description || "Fruit Blox Fruits dengan proses order melalui website.")}</p>
+<div class="price">${money(p.price)}</div>
+<div class="stock-line">● STOK TERSEDIA: ${stock}</div>
 <div class="product-actions">
-
-<button
-class="btn btn-primary"
-${out?"disabled":""}
-onclick="openCheckout(${JSON.stringify(p.id)})">
-
-ORDER NOW 🛒
-
-</button>
-
+<button class="btn btn-primary" ${out?"disabled":""} onclick="openCheckout(${JSON.stringify(p.id)})">ORDER NOW 🛒</button>
 </div>
-
 </div>
-</article>
-`;
-
-}).join("");
-
+</article>`;
 };
 
+window.renderProducts = () => {
+const input = document.getElementById("search");
+const query = (input?.value || "").toLowerCase().trim();
+const list = products.filter(p => Boolean(p.popular) &&
+(activeCat === "ALL" || String(p.category || "").toUpperCase() === activeCat) &&
+String(p.name || "").toLowerCase().includes(query));
+const grid = document.getElementById("productGrid");
+if(!grid) return;
+grid.innerHTML = list.length ? list.map(renderProductCard).join("") : `<div class="panel">Belum ada fruit populer yang sesuai pencarian/filter.</div>`;
+};
+
+window.renderAllFruits = () => {
+const input = document.getElementById("allFruitSearch");
+const query = (input?.value || "").toLowerCase().trim();
+const list = products.filter(p =>
+(allFruitCat === "ALL" || String(p.category || "").toUpperCase() === allFruitCat) &&
+String(p.name || "").toLowerCase().includes(query));
+const grid = document.getElementById("allFruitGrid");
+if(!grid) return;
+grid.innerHTML = list.length ? list.map(renderProductCard).join("") : `<div class="panel">Buah tidak ditemukan.</div>`;
+};
+
+function openAllFruitsPage(){
+ document.getElementById("products").classList.add("nzr-hidden");
+ document.getElementById("allFruitsPage").classList.remove("nzr-hidden");
+ renderAllFruits();
+ document.getElementById("allFruitsPage").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function closeAllFruitsPage(){
+ document.getElementById("allFruitsPage").classList.add("nzr-hidden");
+ document.getElementById("products").classList.remove("nzr-hidden");
+ document.getElementById("products").scrollIntoView({behavior:"smooth",block:"start"});
+}
 
 /* =========================================================
    OPEN CHECKOUT
@@ -1692,12 +1635,12 @@ updateTotal();
    CREATE ORDER
 ========================================================= */
 
-document.getElementById(
-"createOrderBtn"
-).onclick =
-async () => {
+document.getElementById("createOrderBtn").onclick = async () => {
 
 if(!selected) return;
+
+const orderBtn = document.getElementById("createOrderBtn");
+if(orderBtn.disabled) return;
 
 const username =
 document.getElementById(
@@ -1710,14 +1653,7 @@ document.getElementById(
 ).value.trim();
 
 const qty =
-Math.max(
-1,
-Math.floor(
-Number(
-document.getElementById("qty").value || 1
-)
-)
-);
+Math.max(1, Math.floor(Number(document.getElementById("qty").value || 1)));
 
 const schedule =
 document.getElementById(
@@ -1880,19 +1816,14 @@ subtotal - discount
 const invoice =
 generateInvoiceId();
 
-document.getElementById(
-"checkoutMsg"
-).textContent =
-"Membuat pesanan...";
-
+document.getElementById("checkoutMsg").textContent = "Membuat pesanan...";
+orderBtn.disabled = true;
+orderBtn.dataset.oldText = orderBtn.innerHTML;
+orderBtn.innerHTML = "MEMPROSES...";
 
 /* CREATE */
 
-let result;
-
-try{
-
-result =
+const result =
 await createOrderWithStock(
 invoice,
 selected.id,
@@ -1918,13 +1849,10 @@ total_price:
 total,
 
 voucher_code:
-voucher?.code ||
-voucher?.id ||
-"",
+voucher?.code || voucher?.id || "",
 
 voucher_id:
-voucher?.id ||
-null,
+voucher?.id || "",
 
 roblox_username:
 username,
@@ -1942,7 +1870,7 @@ payment_status:
 "UNPAID",
 
 payment_proof_url:
-null,
+"",
 
 status:
 "WAITING_PAYMENT",
@@ -1952,20 +1880,6 @@ estimated_process:
 
 }
 );
-
-}catch(error){
-
-console.error("NANZERA CREATE ORDER ERROR:", error);
-
-document.getElementById(
-"checkoutMsg"
-).textContent =
-error?.message ||
-"Gagal membuat pesanan. Silakan coba lagi.";
-
-return;
-
-}
 
 
 if(!result.success){
@@ -2004,25 +1918,7 @@ saveDraft();
 
 closeCheckout();
 
-try{
-
 showPaymentPage(currentOrder);
-
-}catch(error){
-
-console.error("NANZERA PAYMENT PAGE ERROR:", error);
-
-document.getElementById(
-"checkoutMsg"
-).textContent =
-"Pesanan berhasil dibuat, tetapi halaman pembayaran gagal dibuka. Invoice: " +
-invoice;
-
-document.getElementById(
-"paymentModal"
-).classList.remove("hidden");
-
-}
 
 };
 
@@ -3381,16 +3277,28 @@ encodeURIComponent(
 
 
 /* =========================================================
+   ALL FRUITS CONTROLS
+========================================================= */
+document.getElementById("viewAllFruitsBtn")?.addEventListener("click",openAllFruitsPage);
+document.getElementById("backFeaturedBtn")?.addEventListener("click",closeAllFruitsPage);
+document.getElementById("allFruitSearch")?.addEventListener("input",renderAllFruits);
+document.querySelectorAll("[data-all-cat]").forEach(btn=>btn.addEventListener("click",()=>{
+ document.querySelectorAll("[data-all-cat]").forEach(x=>x.classList.remove("active"));
+ btn.classList.add("active");
+ allFruitCat=btn.dataset.allCat;
+ renderAllFruits();
+}));
+
+/* =========================================================
    FIREBASE PRODUCTS
 ========================================================= */
 
 watchProducts(
 data => {
 
-products =
-data || [];
-
+products = data || [];
 renderProducts();
+renderAllFruits();
 
 if(!selected)
 restoreDraft();
