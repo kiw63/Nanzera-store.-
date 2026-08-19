@@ -1,74 +1,60 @@
 rules_version = '2';
-
 service cloud.firestore {
-  match /databases/{database}/documents {
-
-    function isAdmin() {
-      return request.auth != null
-        && exists(
-          /databases/$(database)/documents/admins/$(request.auth.uid)
-        );
-    }
-
-    function productExists(productId) {
-      return exists(
-        /databases/$(database)/documents/products/$(productId)
-      );
-    }
-
-    match /products/{productId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
-    }
-
-    match /vouchers/{voucherId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
-    }
-
-    match /transactions/{invoiceId} {
-
-      allow create: if
-        request.resource.data.invoice_id == invoiceId
-        && request.resource.data.status == "WAITING_PAYMENT"
-        && request.resource.data.payment_status == "UNPAID"
-
-        && request.resource.data.quantity is int
-        && request.resource.data.quantity > 0
-
-        && request.resource.data.product_id is string
-        && productExists(request.resource.data.product_id)
-
-        && request.resource.data.unit_price ==
-          get(
-            /databases/$(database)/documents/products/$(request.resource.data.product_id)
-          ).data.price
-
-        && request.resource.data.roblox_username is string
-        && request.resource.data.customer_email is string
-
-        && request.resource.data.get("voucher_code", "") == ""
-        && request.resource.data.total_price ==
-          request.resource.data.unit_price *
-          request.resource.data.quantity;
-
-
-      allow get: if true;
-
-      allow list: if isAdmin();
-
-      allow update, delete: if isAdmin();
-    }
-
-    match /admins/{uid} {
-      allow read: if request.auth != null
-        && request.auth.uid == uid;
-
-      allow write: if false;
-    }
-
-    match /{document=**} {
-      allow read, write: if false;
-    }
+ match /databases/{database}/documents {
+  function isAdmin(){return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));}
+  function orderAfter(invoiceId){return getAfter(/databases/$(database)/documents/transactions/$(invoiceId));}
+  match /products/{productId} {
+   allow read: if true;
+   allow create,delete: if isAdmin();
+   allow update: if isAdmin();
+   allow update: if
+    request.resource.data.diff(resource.data).affectedKeys().hasOnly(["stock","last_stock_reservation_invoice","updated_at"]) &&
+    request.resource.data.stock is number && resource.data.stock is number && request.resource.data.stock >= 0 &&
+    orderAfter(request.resource.data.last_stock_reservation_invoice).data.product_id == productId &&
+    orderAfter(request.resource.data.last_stock_reservation_invoice).data.status == "WAITING_PAYMENT" &&
+    orderAfter(request.resource.data.last_stock_reservation_invoice).data.payment_status == "UNPAID" &&
+    orderAfter(request.resource.data.last_stock_reservation_invoice).data.quantity is int &&
+    orderAfter(request.resource.data.last_stock_reservation_invoice).data.quantity > 0 &&
+    request.resource.data.stock == resource.data.stock - orderAfter(request.resource.data.last_stock_reservation_invoice).data.quantity &&
+    orderAfter(request.resource.data.last_stock_reservation_invoice).data.unit_price == resource.data.price &&
+    orderAfter(request.resource.data.last_stock_reservation_invoice).data.subtotal_price == resource.data.price * orderAfter(request.resource.data.last_stock_reservation_invoice).data.quantity &&
+    orderAfter(request.resource.data.last_stock_reservation_invoice).data.total_price == orderAfter(request.resource.data.last_stock_reservation_invoice).data.subtotal_price - orderAfter(request.resource.data.last_stock_reservation_invoice).data.discount_amount;
   }
+  match /vouchers/{voucherId} {
+   allow read: if true;
+   allow create,delete: if isAdmin();
+   allow update: if isAdmin();
+   allow update: if
+    request.resource.data.diff(resource.data).affectedKeys().hasOnly(["used_count","last_used_at"]) &&
+    request.resource.data.used_count == resource.data.used_count + 1 &&
+    resource.data.active == true &&
+    (resource.data.usage_limit == null || request.resource.data.used_count <= resource.data.usage_limit) &&
+    orderAfter(request.resource.data.code).data.voucher_code == voucherId &&
+    orderAfter(request.resource.data.code).data.status == "WAITING_PAYMENT";
+  }
+  match /transactions/{invoiceId} {
+   allow create: if
+    request.resource.data.invoice_id == invoiceId &&
+    request.resource.data.status == "WAITING_PAYMENT" &&
+    request.resource.data.payment_status == "UNPAID" &&
+    request.resource.data.quantity is int && request.resource.data.quantity > 0 &&
+    request.resource.data.product_id is string &&
+    exists(/databases/$(database)/documents/products/$(request.resource.data.product_id)) &&
+    request.resource.data.unit_price == get(/databases/$(database)/documents/products/$(request.resource.data.product_id)).data.price &&
+    request.resource.data.subtotal_price == request.resource.data.unit_price * request.resource.data.quantity &&
+    request.resource.data.discount_amount >= 0 && request.resource.data.discount_amount <= request.resource.data.subtotal_price &&
+    request.resource.data.total_price == request.resource.data.subtotal_price - request.resource.data.discount_amount &&
+    request.resource.data.roblox_username is string && request.resource.data.customer_email is string &&
+    (request.resource.data.voucher_code == "" || (
+      exists(/databases/$(database)/documents/vouchers/$(request.resource.data.voucher_code)) &&
+      request.resource.data.discount_amount == request.resource.data.subtotal_price * get(/databases/$(database)/documents/vouchers/$(request.resource.data.voucher_code)).data.discount_percent / 100
+    ));
+   allow get: if true;
+   allow list: if isAdmin();
+   allow update,delete: if isAdmin();
+   allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(["payment_proof_url","payment_proof_name","payment_proof_uploaded_at","payment_status","status","estimated_process","last_updated"]) && request.resource.data.payment_status == "PROOF_UPLOADED" && request.resource.data.status == "WAITING_PAYMENT" && request.resource.data.payment_proof_url is string && request.resource.data.payment_proof_url.size() > 0;
+  }
+  match /admins/{uid} {allow read: if request.auth != null && request.auth.uid == uid; allow write: if false;}
+  match /{document=**} {allow read,write: if false;}
+ }
 }
