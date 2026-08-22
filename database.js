@@ -1,31 +1,13 @@
-// NANZERA STORE - REALTIME FIREBASE DATABASE
+NANZERA STORE - REALTIME FIREBASE DATABASE
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-
 import {
-  getAuth,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signOut
+  getAuth, onAuthStateChanged, signInWithEmailAndPassword, signInAnonymously, signOut
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-
 import {
-  getFirestore,
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-  serverTimestamp,
-  onSnapshot,
-  runTransaction
+  getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc,
+  deleteDoc, addDoc, query, orderBy, serverTimestamp, onSnapshot,
+  runTransaction, limit
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-
-
-/* =========================================================
-   FIREBASE CONFIG
-========================================================= */
 
 const firebaseConfig = {
   apiKey: "AIzaSyAe9qjDfMuwjz_kr87Hrd72MdwFgnnrg_s",
@@ -37,896 +19,160 @@ const firebaseConfig = {
   measurementId: "G-E7M4ZCGYDD"
 };
 
-
-/* =========================================================
-   INITIALIZE
-========================================================= */
-
 const app = initializeApp(firebaseConfig);
-
 const auth = getAuth(app);
-
 const db = getFirestore(app);
 
-
-/* =========================================================
-   AUTH
-========================================================= */
-
-const loginAdmin = (email, password) => {
-
-  return signInWithEmailAndPassword(
-    auth,
-    email,
-    password
-  )
-
-  .then(({ user }) => ({
-    success: true,
-    user
-  }))
-
-  .catch(error => ({
-    success: false,
-    error: getFirebaseErrorMessage(error)
-  }));
-
-};
-
-
-const logoutAdmin = () => {
-
-  return signOut(auth)
-
-    .then(() => ({
-      success: true
-    }))
-
-    .catch(error => ({
-      success: false,
-      error: getFirebaseErrorMessage(error)
-    }));
-
-};
-
-
-function watchAuth(callback) {
-
-  return onAuthStateChanged(
-    auth,
-    callback
-  );
-
+// Customer checkout uses a temporary anonymous Firebase account so Firestore
+// rules can securely associate an order with the browser session.
+async function ensureCustomerAuth() {
+  if (auth.currentUser) return auth.currentUser;
+  const result = await signInAnonymously(auth);
+  return result.user;
 }
 
+const loginAdmin = (email, password) =>
+  signInWithEmailAndPassword(auth, email, password)
+    .then(({user}) => ({success:true,user}))
+    .catch(error => ({success:false,error:getFirebaseErrorMessage(error)}));
 
-/* =========================================================
-   PRODUCTS
-========================================================= */
+const logoutAdmin = () => signOut(auth)
+  .then(() => ({success:true}))
+  .catch(error => ({success:false,error:getFirebaseErrorMessage(error)}));
+
+function watchAuth(callback) { return onAuthStateChanged(auth, callback); }
 
 async function getProducts() {
-
-  const snap =
-    await getDocs(
-      collection(db, "products")
-    );
-
-  return snap.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
-
+  const snap = await getDocs(collection(db, "products"));
+  return snap.docs.map(d => ({id:d.id, ...d.data()}));
 }
-
-
 async function getProduct(id) {
-
-  const snap =
-    await getDoc(
-      doc(db, "products", id)
-    );
-
-  if (!snap.exists()) {
-    return null;
-  }
-
-  return {
-    id: snap.id,
-    ...snap.data()
-  };
-
+  const d = await getDoc(doc(db, "products", id));
+  return d.exists() ? {id:d.id, ...d.data()} : null;
 }
-
-
 async function createProduct(id, data) {
-
-  try {
-
-    await setDoc(
-      doc(db, "products", id),
-      data,
-      {
-        merge: true
-      }
-    );
-
-    return {
-      success: true
-    };
-
-  } catch (error) {
-
-    return {
-      success: false,
-      error: getFirebaseErrorMessage(error)
-    };
-
-  }
-
+  try { await setDoc(doc(db,"products",id), data, {merge:true}); return {success:true}; }
+  catch(e) { return {success:false,error:getFirebaseErrorMessage(e)}; }
 }
-
-
 async function updateProduct(id, data) {
-
-  try {
-
-    await updateDoc(
-      doc(db, "products", id),
-      data
-    );
-
-    return {
-      success: true
-    };
-
-  } catch (error) {
-
-    return {
-      success: false,
-      error: getFirebaseErrorMessage(error)
-    };
-
-  }
-
+  try { await updateDoc(doc(db,"products",id), data); return {success:true}; }
+  catch(e) { return {success:false,error:getFirebaseErrorMessage(e)}; }
 }
-
-
 async function deleteProduct(id) {
-
-  try {
-
-    await deleteDoc(
-      doc(db, "products", id)
-    );
-
-    return {
-      success: true
-    };
-
-  } catch (error) {
-
-    return {
-      success: false,
-      error: getFirebaseErrorMessage(error)
-    };
-
-  }
-
+  try { await deleteDoc(doc(db,"products",id)); return {success:true}; }
+  catch(e) { return {success:false,error:getFirebaseErrorMessage(e)}; }
 }
-
-
-/* =========================================================
-   TRANSACTIONS - READ
-========================================================= */
 
 async function getTransactions() {
-
-  const snap =
-    await getDocs(
-      collection(db, "transactions")
-    );
-
-  return snap.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
-
+  const snap = await getDocs(collection(db,"transactions"));
+  return snap.docs.map(d => ({id:d.id, ...d.data()}));
 }
-
-
 async function getTransaction(invoiceId) {
-
-  const snap =
-    await getDoc(
-      doc(db, "transactions", invoiceId)
-    );
-
-  if (!snap.exists()) {
-    return null;
-  }
-
-  return {
-    id: snap.id,
-    ...snap.data()
-  };
-
+  const d = await getDoc(doc(db,"transactions",invoiceId));
+  return d.exists() ? {id:d.id, ...d.data()} : null;
 }
-
-
-/* =========================================================
-   TRANSACTIONS - CREATE
-========================================================= */
-
 async function createTransaction(invoiceId, data) {
-
   try {
-
-    await setDoc(
-      doc(db, "transactions", invoiceId),
-      {
-        ...data,
-
-        invoice_id: invoiceId,
-
-        created_at:
-          serverTimestamp(),
-
-        last_updated:
-          serverTimestamp()
-      }
-    );
-
-    return {
-      success: true,
-      invoiceId
-    };
-
-  } catch (error) {
-
-    return {
-      success: false,
-      error: getFirebaseErrorMessage(error)
-    };
-
-  }
-
+    await setDoc(doc(db,"transactions",invoiceId), {
+      ...data, invoice_id:invoiceId, created_at:serverTimestamp(),
+      last_updated:serverTimestamp()
+    });
+    return {success:true,invoiceId};
+  } catch(e) { return {success:false,error:getFirebaseErrorMessage(e)}; }
 }
-
-
-/* =========================================================
-   TRANSACTIONS - UPDATE
-========================================================= */
-
-async function updateTransaction(
-  invoiceId,
-  data
-) {
-
+async function updateTransaction(invoiceId, data) {
   try {
-
-    await updateDoc(
-      doc(db, "transactions", invoiceId),
-      {
-        ...data,
-
-        last_updated:
-          serverTimestamp()
-      }
-    );
-
-    return {
-      success: true
-    };
-
-  } catch (error) {
-
-    return {
-      success: false,
-      error: getFirebaseErrorMessage(error)
-    };
-
-  }
-
+    await updateDoc(doc(db,"transactions",invoiceId), {...data,last_updated:serverTimestamp()});
+    return {success:true};
+  } catch(e) { return {success:false,error:getFirebaseErrorMessage(e)}; }
+}
+async function deleteTransaction(invoiceId) {
+  try { await deleteDoc(doc(db,"transactions",invoiceId)); return {success:true}; }
+  catch(e) { return {success:false,error:getFirebaseErrorMessage(e)}; }
 }
 
+/* REALTIME LISTENERS */
+function watchProducts(callback, onError=console.error) {
+  return onSnapshot(collection(db,"products"), snap =>
+    callback(snap.docs.map(d => ({id:d.id, ...d.data()}))), onError);
+}
+function watchTransactions(callback, onError=console.error) {
+  return onSnapshot(collection(db,"transactions"), snap =>
+    callback(snap.docs.map(d => ({id:d.id, ...d.data()}))), onError);
+}
+function watchTransaction(invoiceId, callback, onError=console.error) {
+  return onSnapshot(doc(db,"transactions",invoiceId), snap =>
+    callback(snap.exists() ? {id:snap.id,...snap.data()} : null), onError);
+}
 
-/* =========================================================
-   TRANSACTIONS - DELETE
-========================================================= */
-
-async function deleteTransaction(
-  invoiceId
-) {
-
+/* Atomically reserve stock and create the order. */
+async function createOrderWithStock(invoiceId, productId, quantity, data) {
   try {
+    const customer = await ensureCustomerAuth();
 
-    await deleteDoc(
-      doc(db, "transactions", invoiceId)
-    );
+    await runTransaction(db, async tx => {
+      const productRef = doc(db,"products",productId);
+      const productSnap = await tx.get(productRef);
+      if (!productSnap.exists()) throw new Error("PRODUCT_NOT_FOUND");
 
-    return {
-      success: true
-    };
+      const product = productSnap.data();
+      const stock = Number(product.stock ?? 0);
+      if (stock < quantity) throw new Error("OUT_OF_STOCK");
 
-  } catch (error) {
-
-    return {
-      success: false,
-      error: getFirebaseErrorMessage(error)
-    };
-
-  }
-
-}
-
-
-/* =========================================================
-   REALTIME PRODUCTS
-========================================================= */
-
-function watchProducts(
-  callback,
-  onError = console.error
-) {
-
-  return onSnapshot(
-
-    collection(db, "products"),
-
-    snap => {
-
-      callback(
-        snap.docs.map(d => ({
-          id: d.id,
-          ...d.data()
-        }))
-      );
-
-    },
-
-    onError
-
-  );
-
-}
-
-
-/* =========================================================
-   REALTIME TRANSACTIONS
-========================================================= */
-
-function watchTransactions(
-  callback,
-  onError = console.error
-) {
-
-  return onSnapshot(
-
-    collection(db, "transactions"),
-
-    snap => {
-
-      callback(
-        snap.docs.map(d => ({
-          id: d.id,
-          ...d.data()
-        }))
-      );
-
-    },
-
-    onError
-
-  );
-
-}
-
-
-/* =========================================================
-   REALTIME SINGLE TRANSACTION
-========================================================= */
-
-function watchTransaction(
-  invoiceId,
-  callback,
-  onError = console.error
-) {
-
-  return onSnapshot(
-
-    doc(
-      db,
-      "transactions",
-      invoiceId
-    ),
-
-    snap => {
-
-      if (!snap.exists()) {
-
-        callback(null);
-
-        return;
-
-      }
-
-      callback({
-        id: snap.id,
-        ...snap.data()
+      // Reserve the stock and create the order atomically. The Rules verify
+      // that these two writes belong to the same invoice.
+      tx.update(productRef, {
+        stock: stock - quantity,
+        reserved_invoice: invoiceId,
+        reserved_quantity: quantity,
+        updated_at: serverTimestamp()
       });
 
-    },
-
-    onError
-
-  );
-
-}
-
-
-/* =========================================================
-   CREATE ORDER + RESERVE STOCK
-========================================================= */
-
-async function createOrderWithStock(
-  invoiceId,
-  productId,
-  quantity,
-  data
-) {
-
-  try {
-
-    const qty =
-      Math.max(
-        1,
-        Math.floor(
-          Number(quantity || 1)
-        )
-      );
-
-
-    await runTransaction(
-      db,
-      async transaction => {
-
-        const productRef =
-          doc(
-            db,
-            "products",
-            productId
-          );
-
-
-        const orderRef =
-          doc(
-            db,
-            "transactions",
-            invoiceId
-          );
-
-
-        /* -----------------------------------------
-           GET PRODUCT
-        ----------------------------------------- */
-
-        const productSnap =
-          await transaction.get(
-            productRef
-          );
-
-
-        if (!productSnap.exists()) {
-
-          throw new Error(
-            "PRODUCT_NOT_FOUND"
-          );
-
-        }
-
-
-        const product =
-          productSnap.data();
-
-
-        /* -----------------------------------------
-           CURRENT STOCK
-        ----------------------------------------- */
-
-        const stock =
-          Math.max(
-            0,
-            Math.floor(
-              Number(
-                product.stock ?? 0
-              )
-            )
-          );
-
-
-        if (stock < qty) {
-
-          throw new Error(
-            "OUT_OF_STOCK"
-          );
-
-        }
-
-
-        /* -----------------------------------------
-           CURRENT PRICE
-        ----------------------------------------- */
-
-        const unitPrice =
-          Number(
-            product.price ?? 0
-          );
-
-
-        if (
-          !Number.isFinite(unitPrice) ||
-          unitPrice < 0
-        ) {
-
-          throw new Error(
-            "INVALID_PRICE"
-          );
-
-        }
-
-
-        /* -----------------------------------------
-           SUBTOTAL
-        ----------------------------------------- */
-
-        const subtotal =
-          unitPrice * qty;
-
-
-        /* -----------------------------------------
-           DISCOUNT
-        ----------------------------------------- */
-
-        let discount =
-          Number(
-            data?.discount_amount ?? 0
-          );
-
-
-        if (
-          !Number.isFinite(discount) ||
-          discount < 0
-        ) {
-
-          discount = 0;
-
-        }
-
-
-        if (discount > subtotal) {
-
-          discount = subtotal;
-
-        }
-
-
-        /* -----------------------------------------
-           TOTAL
-        ----------------------------------------- */
-
-        const total =
-          Math.max(
-            0,
-            subtotal - discount
-          );
-
-
-        /* -----------------------------------------
-           UPDATE STOCK
-        ----------------------------------------- */
-
-        transaction.update(
-
-          productRef,
-
-          {
-
-            stock:
-              stock - qty,
-
-            last_stock_reservation_invoice:
-              invoiceId,
-
-            updated_at:
-              serverTimestamp()
-
-          }
-
-        );
-
-
-        /* -----------------------------------------
-           CREATE ORDER
-        ----------------------------------------- */
-
-        transaction.set(
-
-          orderRef,
-
-          {
-
-            ...data,
-
-            invoice_id:
-              invoiceId,
-
-            product_id:
-              productId,
-
-            quantity:
-              qty,
-
-            unit_price:
-              unitPrice,
-
-            subtotal_price:
-              subtotal,
-
-            discount_amount:
-              discount,
-
-            total_price:
-              total,
-
-            voucher_code:
-              data?.voucher_code || "",
-
-            voucher_id:
-              data?.voucher_id || "",
-
-            status:
-              "WAITING_PAYMENT",
-
-            payment_status:
-              "UNPAID",
-
-            created_at:
-              serverTimestamp(),
-
-            last_updated:
-              serverTimestamp()
-
-          }
-
-        );
-
-      }
-    );
-
-
-    return {
-
-      success: true,
-
-      invoiceId
-
-    };
-
-
-  } catch (error) {
-
-
-    console.error(
-      "NANZERA createOrderWithStock error:",
-      error
-    );
-
-
-    if (
-      error?.message ===
-      "OUT_OF_STOCK"
-    ) {
-
-      return {
-
-        success: false,
-
-        error:
-          "Stok produk tidak mencukupi. Silakan refresh dan coba lagi."
-
-      };
-
-    }
-
-
-    if (
-      error?.message ===
-      "PRODUCT_NOT_FOUND"
-    ) {
-
-      return {
-
-        success: false,
-
-        error:
-          "Produk tidak ditemukan."
-
-      };
-
-    }
-
-
-    if (
-      error?.message ===
-      "INVALID_PRICE"
-    ) {
-
-      return {
-
-        success: false,
-
-        error:
-          "Harga produk tidak valid."
-
-      };
-
-    }
-
-
-    return {
-
-      success: false,
-
-      error:
-        getFirebaseErrorMessage(error)
-
-    };
-
+      tx.set(doc(db,"transactions",invoiceId), {
+        ...data,
+        invoice_id: invoiceId,
+        product_id: productId,
+        quantity,
+        customer_uid: customer.uid,
+        status:"WAITING_PAYMENT",
+        created_at:serverTimestamp(),
+        last_updated:serverTimestamp()
+      });
+    });
+
+    return {success:true,invoiceId};
+  } catch(e) {
+    if (e.message === "OUT_OF_STOCK") return {success:false,error:"Stok produk tidak mencukupi."};
+    if (e.message === "PRODUCT_NOT_FOUND") return {success:false,error:"Produk tidak ditemukan."};
+    return {success:false,error:getFirebaseErrorMessage(e)};
   }
-
 }
-
-
-/* =========================================================
-   INVOICE
-========================================================= */
 
 function generateInvoiceId() {
-
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-
-  let random =
-    "";
-
-
-  for (
-    let i = 0;
-    i < 7;
-    i++
-  ) {
-
-    random +=
-      chars[
-        Math.floor(
-          Math.random() *
-          chars.length
-        )
-      ];
-
-  }
-
-
-  return `NZR-${random}`;
-
+  const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let r="";
+  for(let i=0;i<7;i++) r+=chars[Math.floor(Math.random()*chars.length)];
+  return `NZR-${r}`;
 }
 
-
-/* =========================================================
-   FIREBASE ERROR MESSAGE
-========================================================= */
-
-function getFirebaseErrorMessage(
-  error
-) {
-
-  const code =
-    error?.code ||
-    error?.message ||
-    "";
-
-
-  const map = {
-
-    "auth/invalid-email":
-      "Format email tidak valid.",
-
-    "auth/invalid-credential":
-      "Email atau password salah.",
-
-    "auth/user-not-found":
-      "Akun admin tidak ditemukan.",
-
-    "auth/wrong-password":
-      "Password salah.",
-
-    "auth/too-many-requests":
-      "Terlalu banyak percobaan. Coba lagi nanti.",
-
-    "permission-denied":
-      "Akses ditolak oleh Firebase Security Rules. Pastikan Firestore Rules sudah di-Publish dan akun admin memiliki dokumen admins/{UID}.",
-
-    "auth/network-request-failed":
-      "Koneksi ke Firebase bermasalah.",
-
-    "failed-precondition":
-      "Firebase belum memenuhi kondisi yang diperlukan.",
-
-    "not-found":
-      "Data tidak ditemukan.",
-
-    "unavailable":
-      "Firebase sedang tidak tersedia. Coba lagi."
-
+function getFirebaseErrorMessage(error) {
+  const code=error?.code || error?.message || "";
+  const map={
+    "auth/invalid-email":"Format email tidak valid.",
+    "auth/invalid-credential":"Email atau password salah.",
+    "auth/user-not-found":"Akun admin tidak ditemukan.",
+    "auth/wrong-password":"Password salah.",
+    "auth/too-many-requests":"Terlalu banyak percobaan. Coba lagi nanti.",
+    "permission-denied":"Akses ditolak oleh Firebase Security Rules.",
+    "not-found":"Data tidak ditemukan."
   };
-
-
-  return (
-    map[code] ||
-    error?.message ||
-    "Terjadi kesalahan."
-  );
-
+  return map[code] || error?.message || "Terjadi kesalahan.";
 }
-
-
-/* =========================================================
-   EXPORT
-========================================================= */
 
 export {
-
-  app,
-
-  auth,
-
-  db,
-
-  loginAdmin,
-
-  logoutAdmin,
-
-  watchAuth,
-
-  getProducts,
-
-  getProduct,
-
-  createProduct,
-
-  updateProduct,
-
-  deleteProduct,
-
-  getTransactions,
-
-  getTransaction,
-
-  createTransaction,
-
-  updateTransaction,
-
-  deleteTransaction,
-
-  watchProducts,
-
-  watchTransactions,
-
-  watchTransaction,
-
-  createOrderWithStock,
-
+  app, auth, db, loginAdmin, logoutAdmin, watchAuth, ensureCustomerAuth,
+  getProducts, getProduct, createProduct, updateProduct, deleteProduct,
+  getTransactions, getTransaction, createTransaction, updateTransaction, deleteTransaction,
+  watchProducts, watchTransactions, watchTransaction, createOrderWithStock,
   generateInvoiceId
-
 };
