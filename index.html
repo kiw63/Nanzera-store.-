@@ -987,7 +987,7 @@ createOrderWithStock,
 generateInvoiceId,
 watchTransaction,
 ensureCustomerAuth
-} from "./database.js";
+} from "./database_v2.js?v=20260822fix";
 
 
 /* =========================================================
@@ -1212,7 +1212,7 @@ message:"Masukkan kode voucher."
 try{
 
 const {db} =
-await import("./database.js");
+await import("./database_v2.js?v=20260822fix");
 
 await ensureCustomerAuth();
 
@@ -1789,7 +1789,7 @@ result.voucher;
 try{
 
 const {db} =
-await import("./database.js");
+await import("./database_v2.js?v=20260822fix");
 
 const {
 doc,
@@ -2407,7 +2407,7 @@ msg.textContent =
 const {
 db
 } =
-await import("./database.js");
+await import("./database_v2.js?v=20260822fix");
 
 await ensureCustomerAuth();
 
@@ -3202,7 +3202,7 @@ accepted
 try{
 
 const {db} =
-await import("./database.js");
+await import("./database_v2.js?v=20260822fix");
 
 const {
 doc,
@@ -3379,8 +3379,13 @@ renderAllFruits();
 if(!selected)
 restoreDraft();
 
-}
-);
+}, error => {
+  console.error("NANZERA PRODUCTS ERROR:", error);
+  const grid = document.getElementById("productGrid");
+  if (grid) {
+    grid.innerHTML = `<div class="panel" style="padding:18px;color:#ffb4b4">Gagal memuat produk dari Firebase.<br><small>${String(error?.code || error?.message || "Unknown error")}</small><br><br>Pastikan Firestore Rules sudah di-Publish.</div>`;
+  }
+});
 
 
 /* =========================================================
