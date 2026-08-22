@@ -359,6 +359,84 @@
 .all-fruits-page{padding-top:20px;}
 @media(max-width:600px){.fruit-art{height:160px}.fruit-art img{max-height:135px}.product-info{padding:14px}.price{font-size:22px}}
 
+/* NANZERA - COMPACT FRUIT CARDS ONLY */
+.product-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+}
+.product-card{
+  min-width:0;
+}
+.fruit-art{
+  height:145px;
+}
+.fruit-art img{
+  max-width:78%;
+  max-height:125px;
+}
+.product-info{
+  padding:12px;
+}
+.product-name{
+  font-size:17px;
+}
+.price{
+  font-size:19px;
+  margin:9px 0;
+}
+.product-info p{
+  min-height:36px;
+}
+@media(max-width:900px){
+  .product-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:12px;
+  }
+}
+@media(max-width:600px){
+  .product-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+  }
+  .fruit-art{
+    height:125px;
+  }
+  .fruit-art img{
+    max-width:82%;
+    max-height:105px;
+  }
+  .product-info{
+    padding:10px;
+  }
+  .product-name{
+    font-size:14px;
+  }
+  .rarity{
+    font-size:8px;
+    padding:2px 5px;
+    margin-left:3px;
+  }
+  .product-info p{
+    font-size:10px;
+    min-height:32px;
+  }
+  .price{
+    font-size:16px;
+    margin:8px 0;
+  }
+  .stock-line{
+    font-size:9px;
+  }
+  .product-actions{
+    margin-top:9px;
+  }
+  .product-actions .btn{
+    padding:9px 8px;
+    font-size:10px;
+  }
+}
+
+
 </style>
 </head>
 
@@ -985,9 +1063,8 @@ import {
 watchProducts,
 createOrderWithStock,
 generateInvoiceId,
-watchTransaction,
-ensureCustomerAuth
-} from "./database_v2.js?v=20260822fix";
+watchTransaction
+} from "./database.js";
 
 
 /* =========================================================
@@ -1212,9 +1289,7 @@ message:"Masukkan kode voucher."
 try{
 
 const {db} =
-await import("./database_v2.js?v=20260822fix");
-
-await ensureCustomerAuth();
+await import("./database.js");
 
 const {
 doc,
@@ -1789,7 +1864,7 @@ result.voucher;
 try{
 
 const {db} =
-await import("./database_v2.js?v=20260822fix");
+await import("./database.js");
 
 const {
 doc,
@@ -2407,9 +2482,7 @@ msg.textContent =
 const {
 db
 } =
-await import("./database_v2.js?v=20260822fix");
-
-await ensureCustomerAuth();
+await import("./database.js");
 
 const {
 doc,
@@ -3202,7 +3275,7 @@ accepted
 try{
 
 const {db} =
-await import("./database_v2.js?v=20260822fix");
+await import("./database.js");
 
 const {
 doc,
@@ -3379,13 +3452,8 @@ renderAllFruits();
 if(!selected)
 restoreDraft();
 
-}, error => {
-  console.error("NANZERA PRODUCTS ERROR:", error);
-  const grid = document.getElementById("productGrid");
-  if (grid) {
-    grid.innerHTML = `<div class="panel" style="padding:18px;color:#ffb4b4">Gagal memuat produk dari Firebase.<br><small>${String(error?.code || error?.message || "Unknown error")}</small><br><br>Pastikan Firestore Rules sudah di-Publish.</div>`;
-  }
-});
+}
+);
 
 
 /* =========================================================
