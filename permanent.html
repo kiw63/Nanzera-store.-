@@ -1,0 +1,3255 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nanzera Store — Blox Fruits Trade Center</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+/* =========================================================
+   NANZERA CUSTOMER SYSTEM
+========================================================= */
+
+.nzr-hidden{
+  display:none!important;
+}
+
+.nzr-card{
+  background:#10131a;
+  border:1px solid #292f39;
+  border-radius:16px;
+  padding:16px;
+}
+
+.nzr-pay-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+}
+
+.nzr-qris{
+  background:#fff;
+  border-radius:16px;
+  padding:14px;
+  text-align:center;
+  color:#111;
+}
+
+.nzr-qris img{
+  width:100%;
+  max-width:330px;
+  display:block;
+  margin:auto;
+  border-radius:8px;
+}
+
+.nzr-total{
+  font-size:28px;
+  font-weight:950;
+  margin:18px 0 8px;
+}
+
+.nzr-voucher{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+}
+
+.nzr-voucher input{
+  flex:1;
+}
+
+.nzr-success{
+  color:#a8ff62;
+  font-size:13px;
+}
+
+.nzr-error{
+  color:#ff6878;
+  font-size:13px;
+}
+
+.nzr-notice{
+  background:#19150b;
+  border:1px solid #4b3a18;
+  color:#e5d39a;
+  border-radius:12px;
+  padding:13px;
+  font-size:12px;
+  line-height:1.6;
+}
+
+.nzr-upload{
+  border:1px dashed #414957;
+  border-radius:12px;
+  padding:14px;
+  margin-top:10px;
+}
+
+.nzr-upload input{
+  width:100%;
+}
+
+.nzr-invoice{
+  font-size:27px;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+
+.nzr-message{
+  border-left:3px solid #8b5cf6;
+  background:#17131f;
+  padding:12px;
+  border-radius:8px;
+  font-size:13px;
+  margin-top:10px;
+}
+
+.nzr-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.nzr-actions .btn{
+  flex:1;
+}
+
+.nzr-info-row{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  padding:9px 0;
+  border-bottom:1px solid #252a33;
+  font-size:13px;
+}
+
+.nzr-info-row:last-child{
+  border-bottom:0;
+}
+
+.nzr-copy{
+  cursor:pointer;
+}
+
+.nzr-payment-status{
+  padding:12px;
+  border-radius:10px;
+  background:#151821;
+  border:1px solid #292f39;
+  margin-top:12px;
+}
+
+.nzr-estimate{
+  padding:12px;
+  border-radius:10px;
+  background:#151821;
+  margin-top:12px;
+}
+
+
+/* =========================================================
+   HORIZONTAL TRANSACTION TIMELINE
+========================================================= */
+
+.nzr-timeline-wrap{
+  width:100%;
+  overflow-x:auto;
+  padding:24px 8px 18px;
+  margin-top:22px;
+}
+
+.nzr-timeline{
+  min-width:900px;
+  position:relative;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:0;
+}
+
+.nzr-line-bg{
+  position:absolute;
+  left:3%;
+  right:3%;
+  top:25px;
+  height:10px;
+  border-radius:999px;
+  background:#282d37;
+  z-index:0;
+}
+
+.nzr-line-progress{
+  position:absolute;
+  left:3%;
+  top:25px;
+  height:10px;
+  width:0;
+  border-radius:999px;
+  background:linear-gradient(
+    90deg,
+    #7c3aed,
+    #a855f7,
+    #c084fc
+  );
+  box-shadow:0 0 14px #8b5cf688;
+  z-index:1;
+  transition:width .8s ease;
+  overflow:hidden;
+}
+
+.nzr-line-progress::after{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-80px;
+  width:80px;
+  height:100%;
+  background:linear-gradient(
+    90deg,
+    transparent,
+    #fff9,
+    transparent
+  );
+  animation:nzrFlow 1.4s linear infinite;
+}
+
+@keyframes nzrFlow{
+  from{
+    left:-80px;
+  }
+  to{
+    left:100%;
+  }
+}
+
+.nzr-step{
+  position:relative;
+  z-index:2;
+  width:140px;
+  text-align:center;
+  flex-shrink:0;
+}
+
+.nzr-dot{
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  margin:0 auto 12px;
+  display:grid;
+  place-items:center;
+  background:#191d26;
+  border:4px solid #353b47;
+  font-weight:900;
+  transition:.5s;
+  position:relative;
+}
+
+.nzr-step.done .nzr-dot{
+  background:#8b5cf6;
+  border-color:#c084fc;
+  box-shadow:
+    0 0 0 5px #8b5cf622,
+    0 0 25px #8b5cf666;
+}
+
+.nzr-step.current .nzr-dot{
+  animation:nzrPulse 1.4s infinite;
+}
+
+@keyframes nzrPulse{
+  0%,100%{
+    transform:scale(1);
+  }
+  50%{
+    transform:scale(1.1);
+  }
+}
+
+.nzr-step-title{
+  font-size:11px;
+  font-weight:900;
+  line-height:1.35;
+}
+
+.nzr-step-sub{
+  font-size:10px;
+  color:#858c99;
+  margin-top:5px;
+  line-height:1.4;
+}
+
+.nzr-admin-box{
+  margin-top:18px;
+  border:1px solid #8b5cf655;
+  background:#17121f;
+  border-radius:16px;
+  padding:18px;
+  text-align:center;
+  animation:nzrAdminAppear .6s ease;
+}
+
+@keyframes nzrAdminAppear{
+  from{
+    opacity:0;
+    transform:translateY(12px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+.nzr-admin-user{
+  font-size:22px;
+  font-weight:950;
+  letter-spacing:.04em;
+  margin:8px 0;
+}
+
+.nzr-sacrifice{
+  font-size:16px;
+  font-weight:900;
+  margin-top:12px;
+}
+
+.nzr-proof-preview{
+  margin-top:12px;
+  border-radius:12px;
+  overflow:hidden;
+  background:#0b0d12;
+  text-align:center;
+}
+
+.nzr-proof-preview img{
+  max-width:100%;
+  max-height:320px;
+  object-fit:contain;
+  display:block;
+  margin:auto;
+}
+
+@media(max-width:700px){
+
+  .nzr-pay-grid{
+    grid-template-columns:1fr;
+  }
+
+  .nzr-voucher{
+    flex-direction:column;
+  }
+
+  .nzr-invoice{
+    font-size:22px;
+  }
+
+  .nzr-timeline-wrap{
+    margin-left:-4px;
+    margin-right:-4px;
+  }
+}
+
+/* NANZERA STORE - compact featured/all fruits */
+.featured-actions{display:flex;justify-content:center;margin:18px 0 24px;}
+.all-fruits-actions{display:flex;justify-content:flex-end;margin:0 0 20px;}
+.fruit-art img{width:auto;max-width:82%;max-height:155px;object-fit:contain;display:block;}
+.fruit-art.image-error .fruit-image-fallback{display:grid;}
+.fruit-image-fallback{display:none;position:absolute;inset:0;place-items:center;color:#8991a2;font-weight:900;font-size:12px;text-transform:uppercase;}
+.all-fruits-page{padding-top:20px;}
+@media(max-width:600px){.fruit-art{height:160px}.fruit-art img{max-height:135px}.product-info{padding:14px}.price{font-size:22px}}
+
+.nzr-permanent-method{
+display:inline-flex;
+align-items:center;
+margin-top:7px;
+padding:5px 8px;
+border:1px solid #4b2d72;
+background:#1a1125;
+border-radius:7px;
+font-size:10px;
+font-weight:800;
+color:#d9c2ff;
+}
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+<div class="container inner">
+
+<a class="brand" href="#home">
+<span class="brand-mark">N</span>
+<span>NANZERA <small>STORE</small></span>
+</a>
+
+<nav class="nav">
+<a href="index.html">🍇 FRUIT</a>
+<a class="active" href="#home">♾️ PERMANENT</a>
+<a href="#products">PERMANENT FRUIT</a>
+<a href="#how">HOW IT WORKS</a>
+<a href="#status">CEK TRANSAKSI</a>
+<a href="#support">SUPPORT</a>
+</nav>
+
+<button
+class="btn mobile-menu"
+onclick="document.querySelector('.nav').classList.toggle('mobile-open')">
+☰
+</button>
+
+</div>
+</header>
+
+
+<main>
+
+<!-- HERO -->
+<section id="home" class="hero">
+
+<div class="hero-art">
+<div class="orb o1"></div>
+<div class="orb o2"></div>
+</div>
+
+<div class="container">
+
+<div class="hero-copy">
+
+<div class="eyebrow">
+TRUSTED • FAST • SECURE
+</div>
+
+<h1>
+PERMANENT BLOX FRUITS
+<br>
+<span>WITH CONFIDENCE</span>
+</h1>
+
+<p>
+Nanzera Store menyediakan pembelian Permanent Fruit
+dengan order tercatat, pembayaran melalui website,
+bukti pembayaran dan status transaksi realtime.
+</p>
+
+<div class="trust-row">
+
+<div class="trust">
+<b>ORDER TERCATAT</b>
+<span>Invoice tersimpan di sistem</span>
+</div>
+
+<div class="trust">
+<b>REAL-TIME</b>
+<span>Status langsung diperbarui</span>
+</div>
+
+<div class="trust">
+<b>SECURE FLOW</b>
+<span>Pembayaran diverifikasi admin</span>
+</div>
+
+</div>
+
+<div class="hero-actions">
+
+<a class="btn btn-primary" href="#products">
+🛍 BROWSE PRODUCTS
+</a>
+
+<a class="btn" href="#how">
+▶ HOW IT WORKS
+</a>
+
+</div>
+
+</div>
+</div>
+</section>
+
+
+<!-- PRODUCTS -->
+<section id="products" class="section">
+<div class="container">
+<div class="section-head">
+<div>
+<div class="eyebrow">PERMANENT FRUIT</div>
+<h2 class="section-title">♾️ PERMANENT FRUIT</h2>
+<div class="section-sub">Permanent Fruit tersedia di sini. Metode Gift/Trade ditentukan oleh Admin.</div>
+</div>
+<div class="toolbar">
+<div class="search">
+<input id="search" placeholder="Cari Permanent Fruit...">
+<button id="searchBtn" type="button">⌕</button>
+</div>
+</div>
+</div>
+<div id="productGrid" class="product-grid">
+<div class="panel">Memuat Permanent Fruit...</div>
+</div>
+</div>
+</section>
+
+
+<!-- ALL FRUITS -->
+
+
+
+<!-- HOW -->
+<section id="how" class="section">
+
+<div class="container">
+
+<div class="eyebrow">
+ORDER FLOW
+</div>
+
+<h2 class="section-title">
+CARA ORDER DI NANZERA STORE
+</h2>
+
+<div class="steps">
+
+<div class="step">
+<div class="step-num">1</div>
+<h3>PILIH PRODUK</h3>
+<p>Pilih fruit yang tersedia dan jumlah yang kamu inginkan.</p>
+</div>
+
+<div class="step">
+<div class="step-num">2</div>
+<h3>CHECKOUT</h3>
+<p>Masukkan Roblox username, email, jumlah dan jadwal.</p>
+</div>
+
+<div class="step">
+<div class="step-num">3</div>
+<h3>GUNAKAN VOUCHER</h3>
+<p>Masukkan kode voucher jika kamu memiliki promo.</p>
+</div>
+
+<div class="step">
+<div class="step-num">4</div>
+<h3>BAYAR</h3>
+<p>Bayar menggunakan QRIS DANA Bisnis.</p>
+</div>
+
+<div class="step">
+<div class="step-num">5</div>
+<h3>UPLOAD BUKTI</h3>
+<p>Upload bukti pembayaran dan tunggu verifikasi admin.</p>
+</div>
+
+<div class="step">
+<div class="step-num">6</div>
+<h3>JADWAL TRADE</h3>
+<p>Admin menentukan atau menawarkan jadwal trade.</p>
+</div>
+
+<div class="step">
+<div class="step-num">7</div>
+<h3>ADD USERNAME ADMIN</h3>
+<p>Username admin muncul ketika transaksi mencapai tahap ini.</p>
+</div>
+
+<div class="step">
+<div class="step-num">8</div>
+<h3>TRADE</h3>
+<p>Admin melakukan trade sesuai jadwal.</p>
+</div>
+
+<div class="step">
+<div class="step-num">9</div>
+<h3>SELESAI</h3>
+<p>Transaksi selesai dan kode transaksi tersimpan.</p>
+</div>
+
+</div>
+</div>
+</section>
+
+
+<!-- STATUS -->
+<section id="status" class="section">
+
+<div class="container">
+
+<div class="section-head">
+
+<div>
+
+<div class="eyebrow">
+LIVE ORDER STATUS
+</div>
+
+<h2 class="section-title">
+CEK TRANSAKSI
+</h2>
+
+<div class="section-sub">
+Masukkan kode invoice untuk memantau pesanan secara realtime.
+</div>
+
+</div>
+
+</div>
+
+<div class="status-box">
+
+<div class="status-input">
+
+<input
+id="invoiceSearch"
+placeholder="Contoh: NZR-ABC12">
+
+<button
+class="btn btn-primary"
+id="checkBtn">
+CEK STATUS
+</button>
+
+</div>
+
+<div id="orderStatus" class="hidden"></div>
+
+</div>
+
+</div>
+</section>
+
+
+<!-- SUPPORT -->
+<section id="support" class="section">
+
+<div class="container">
+
+<div class="support">
+
+<div class="support-card">
+
+<div class="eyebrow">
+RESELLER
+</div>
+
+<h3>
+Ingin harga reseller?
+</h3>
+
+<p class="muted">
+Hubungi admin melalui WhatsApp untuk informasi reseller.
+</p>
+
+<a
+class="btn btn-primary"
+id="waReseller"
+target="_blank">
+WhatsApp Reseller
+</a>
+
+</div>
+
+<div class="support-card">
+
+<div class="eyebrow">
+COMPLAINT / HELP
+</div>
+
+<h3>
+Butuh bantuan?
+</h3>
+
+<p class="muted">
+WhatsApp digunakan untuk komplain atau bantuan,
+bukan sebagai checkout utama.
+</p>
+
+<a
+class="btn"
+id="waHelp"
+target="_blank">
+WhatsApp CS
+</a>
+
+</div>
+
+</div>
+</div>
+</section>
+
+</main>
+
+
+<!-- FOOTER -->
+<footer class="footer">
+
+<div class="container footer-grid">
+
+<div>
+
+<div class="brand">
+<span class="brand-mark">N</span>
+<span>NANZERA <small>STORE</small></span>
+</div>
+
+<p class="muted">
+Blox Fruits Trade Center.
+</p>
+
+</div>
+
+<div>
+<h4>Quick Links</h4>
+<a href="#products">Products</a>
+<a href="#how">How It Works</a>
+<a href="#status">Cek Transaksi</a>
+</div>
+
+<div>
+<h4>Support</h4>
+<a href="#support">Reseller</a>
+<a href="#support">Komplain</a>
+</div>
+
+<div>
+<h4>Info</h4>
+<a href="#">Syarat & Ketentuan</a>
+<a href="#">Kebijakan Refund</a>
+</div>
+
+</div>
+
+<div class="container copyright">
+© 2026 Nanzera Store. All Rights Reserved.
+</div>
+
+</footer>
+
+
+<!-- CHECKOUT -->
+<div
+id="checkoutModal"
+class="hidden"
+style="
+position:fixed;
+inset:0;
+background:#000d;
+z-index:90;
+display:grid;
+place-items:center;
+padding:16px;
+">
+
+<div
+class="panel"
+style="
+width:min(820px,100%);
+max-height:94vh;
+overflow:auto;
+">
+
+<div
+style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+">
+
+<h2>Checkout</h2>
+
+<button class="btn" id="closeCheckout">
+✕
+</button>
+
+</div>
+
+<div id="checkoutProduct" class="muted"></div>
+
+<div
+class="form-grid"
+style="margin-top:18px;">
+
+<div class="field">
+<label>Roblox Username</label>
+<input id="robloxUser" placeholder="Username Roblox">
+</div>
+
+<div class="field">
+<label>Kontak Email</label>
+<input id="customerEmail" type="email" placeholder="email@kamu.com">
+</div>
+
+<div class="field">
+<label>Jumlah</label>
+<input id="qty" type="number" min="1" value="1">
+</div>
+
+<div class="field">
+<label>Jadwal yang Diinginkan</label>
+<input id="requestedSchedule" placeholder="Contoh: 17:00 WIB">
+</div>
+
+</div>
+
+
+<div
+class="nzr-card"
+style="margin-top:16px;">
+
+<b>🎫 KODE VOUCHER</b>
+
+<div class="nzr-voucher">
+
+<input
+id="voucherCode"
+placeholder="Contoh: NANZERA10"
+autocomplete="off">
+
+<button class="btn" id="applyVoucher">
+GUNAKAN
+</button>
+
+</div>
+
+<div id="voucherMsg" style="margin-top:8px;"></div>
+
+</div>
+
+
+<div class="nzr-total" id="checkoutTotal">
+Rp0
+</div>
+
+<div
+id="checkoutBreakdown"
+class="muted"
+style="font-size:12px;">
+</div>
+
+
+<div
+class="nzr-notice"
+style="margin-top:15px;">
+
+<b>Anti-order stok berubah</b>
+
+<br>
+
+Sebelum order dibuat, sistem mengecek
+stok terbaru dari Firebase lagi.
+
+</div>
+
+
+<div
+class="nzr-actions"
+style="margin-top:16px;">
+
+<button
+class="btn btn-primary"
+id="createOrderBtn">
+BUAT PESANAN
+<br>
+& LANJUT PEMBAYARAN
+</button>
+
+<button
+class="btn"
+id="resumeSavedBtn">
+PULIHKAN DATA
+</button>
+
+</div>
+
+<div id="checkoutMsg" class="muted" style="margin-top:10px;"></div>
+
+</div>
+</div>
+
+
+<!-- PAYMENT -->
+<div
+id="paymentModal"
+class="hidden"
+style="
+position:fixed;
+inset:0;
+background:#000e;
+z-index:95;
+display:grid;
+place-items:center;
+padding:16px;
+">
+
+<div
+class="panel"
+style="
+width:min(900px,100%);
+max-height:94vh;
+overflow:auto;
+">
+
+<div
+style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+">
+
+<h2>Pembayaran</h2>
+
+<button class="btn" id="closePayment">
+✕
+</button>
+
+</div>
+
+<div id="paymentContent"></div>
+
+</div>
+</div>
+
+
+<script type="module">
+
+import {
+watchProducts,
+createOrderWithStock,
+generateInvoiceId,
+watchTransaction
+} from "./database.js";
+
+
+/* =========================================================
+   CONFIG
+========================================================= */
+
+const WA_NUMBER = "6285134793273";
+
+const QRIS_IMAGE_URL =
+"https://raw.githubusercontent.com/kiw63/Gambar/main/qr_ID1025441946833_18.08.26_1787049766_1787049766812.jpeg";
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let products = [];
+let activeCat = "ALL";
+let allFruitCat = "ALL";
+let selected = null;
+let voucher = null;
+let stopOrderWatch = null;
+let currentOrder = null;
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const money = n =>
+new Intl.NumberFormat(
+"id-ID",
+{
+style:"currency",
+currency:"IDR",
+maximumFractionDigits:0
+}
+).format(Number(n)||0);
+
+
+const safe = s =>
+String(s ?? "").replace(
+/[&<>"']/g,
+m => ({
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+}[m])
+);
+
+
+/* =========================================================
+   AUTO SAVE
+========================================================= */
+
+function saveDraft(){
+
+const draft = {
+
+productId:selected?.id || null,
+
+robloxUser:
+document.getElementById("robloxUser").value.trim(),
+
+email:
+document.getElementById("customerEmail").value.trim(),
+
+qty:
+Number(document.getElementById("qty").value || 1),
+
+requestedSchedule:
+document.getElementById("requestedSchedule").value.trim(),
+
+voucherCode:
+document.getElementById("voucherCode").value.trim().toUpperCase(),
+
+invoice:
+document.getElementById("invoiceSearch").value.trim().toUpperCase()
+
+};
+
+localStorage.setItem(
+"nanzera_customer_session_v2",
+JSON.stringify(draft)
+);
+
+}
+
+
+function restoreDraft(){
+
+try{
+
+const data = JSON.parse(
+localStorage.getItem(
+"nanzera_customer_session_v2"
+) || "null"
+);
+
+if(!data) return false;
+
+if(data.productId){
+
+selected =
+products.find(
+p => p.id === data.productId
+) || null;
+
+}
+
+if(data.robloxUser)
+document.getElementById("robloxUser").value =
+data.robloxUser;
+
+if(data.email)
+document.getElementById("customerEmail").value =
+data.email;
+
+if(data.qty)
+document.getElementById("qty").value =
+data.qty;
+
+if(data.requestedSchedule)
+document.getElementById("requestedSchedule").value =
+data.requestedSchedule;
+
+if(data.voucherCode)
+document.getElementById("voucherCode").value =
+data.voucherCode;
+
+if(data.invoice)
+document.getElementById("invoiceSearch").value =
+data.invoice;
+
+if(selected){
+
+document.getElementById(
+"checkoutProduct"
+).textContent =
+`${selected.name} — ${money(selected.price)} / unit`;
+
+updateTotal();
+
+}
+
+return true;
+
+}catch(error){
+
+console.error(error);
+return false;
+
+}
+
+}
+
+
+/* =========================================================
+   VOUCHER
+========================================================= */
+
+function calculateDiscount(subtotal){
+
+if(!voucher) return 0;
+
+if(
+String(voucher.type || "").toLowerCase()
+===
+"fixed"
+){
+
+return Math.min(
+subtotal,
+Number(voucher.discount_percent ?? voucher.value ?? 0)
+);
+
+}
+
+const percent =
+Math.max(
+0,
+Math.min(
+100,
+Number(voucher.discount_percent ?? voucher.value ?? 0)
+)
+);
+
+let discount =
+subtotal * percent / 100;
+
+if(
+voucher.max_discount !== undefined &&
+voucher.max_discount !== null
+){
+
+discount =
+Math.min(
+discount,
+Number(voucher.max_discount)
+);
+
+}
+
+return discount;
+
+}
+
+
+async function validateVoucher(code){
+
+if(!code){
+
+return {
+ok:false,
+message:"Masukkan kode voucher."
+};
+
+}
+
+try{
+
+const {db} =
+await import("./database.js");
+
+const {
+doc,
+getDoc
+} =
+await import(
+"https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js"
+);
+
+const snap =
+await getDoc(
+doc(db,"vouchers",code)
+);
+
+if(!snap.exists()){
+
+return {
+ok:false,
+message:"Kode voucher tidak ditemukan."
+};
+
+}
+
+const v = {
+id:snap.id,
+...snap.data()
+};
+
+if(v.active === false){
+
+return {
+ok:false,
+message:"Voucher sedang tidak aktif."
+};
+
+}
+
+const now = Date.now();
+
+function timestamp(value){
+
+if(!value) return null;
+
+if(
+typeof value.toMillis === "function"
+){
+
+return value.toMillis();
+
+}
+
+const parsed = Date.parse(value);
+
+return Number.isNaN(parsed)
+? null
+: parsed;
+
+}
+
+const start =
+timestamp(
+v.start_at || v.start_date
+);
+
+const end =
+timestamp(
+v.end_at || v.end_date
+);
+
+if(start && now < start){
+
+return {
+ok:false,
+message:"Voucher belum mulai berlaku."
+};
+
+}
+
+if(end && now > end){
+
+return {
+ok:false,
+message:"Voucher sudah kedaluwarsa."
+};
+
+}
+
+const used =
+Number(v.used_count || 0);
+
+const limit =
+v.usage_limit === undefined
+? null
+: Number(v.usage_limit);
+
+if(
+limit !== null &&
+used >= limit
+){
+
+return {
+ok:false,
+message:"Voucher sudah mencapai batas pemakaian."
+};
+
+}
+
+return {
+ok:true,
+voucher:v,
+message:
+`Voucher ${v.code || v.id} berhasil digunakan.`
+};
+
+}catch(error){
+
+console.error(error);
+
+return {
+ok:false,
+message:"Gagal memeriksa voucher."
+};
+
+}
+
+}
+
+
+/* =========================================================
+   TOTAL
+========================================================= */
+
+function updateTotal(){
+
+if(!selected) return;
+
+const qty =
+Math.max(1, Math.floor(Number(document.getElementById("qty").value || 1)));
+
+const subtotal =
+Number(selected.price || 0) * qty;
+
+const discount =
+calculateDiscount(subtotal);
+
+const total =
+Math.max(
+0,
+subtotal - discount
+);
+
+document.getElementById(
+"checkoutTotal"
+).textContent =
+money(total);
+
+document.getElementById(
+"checkoutBreakdown"
+).innerHTML =
+`
+Subtotal: ${money(subtotal)}
+<br>
+Diskon voucher: -${money(discount)}
+<br>
+<b>Total: ${money(total)}</b>
+`;
+
+saveDraft();
+
+}
+
+
+/* =========================================================
+   PRODUCTS
+========================================================= */
+
+window.renderProductCard = p => {
+
+const stock = Number(p.stock || 0);
+const out = stock <= 0;
+const imageUrl = String(p.image_url || p.imageUrl || p.image || "").trim();
+
+return `
+<article class="product-card">
+<div class="fruit-art">
+${p.popular ? '<span class="badge pop">POPULAR</span>' : ""}
+<span class="badge ${out?"out":"stock"}">${out?"OUT OF STOCK":"IN STOCK"}</span>
+${imageUrl ? `
+<img src="${safe(imageUrl)}" alt="${safe(p.name)}" loading="lazy"
+ onerror="this.style.display='none';this.parentElement.classList.add('image-error');">
+<div class="fruit-image-fallback">${safe(p.name)}</div>
+` : `<div class="fruit-placeholder">${safe(p.name || "FRUIT")}</div>`}
+</div>
+<div class="product-info">
+<div class="product-name">${safe(p.name)} <span class="rarity">PERMANENT</span></div>
+${p.method ? `<div class="nzr-permanent-method">${p.method === "GIFT" ? "🎁 Gift" : "🔄 Trade"}</div>` : ""}
+<p>${safe(p.description || "Fruit Blox Fruits dengan proses order melalui website.")}</p>
+<div class="price">${money(p.price)}</div>
+<div class="stock-line">● STOK TERSEDIA: ${stock}</div>
+<div class="product-actions">
+<button class="btn btn-primary" ${out?"disabled":""} onclick="openCheckout(${JSON.stringify(p.id)})">ORDER NOW 🛒</button>
+</div>
+</div>
+</article>`;
+};
+
+window.renderProducts = () => {
+const input = document.getElementById("search");
+const query = (input?.value || "").toLowerCase().trim();
+
+const list = products.filter(p =>
+String(p.category || "").toUpperCase() === "PERMANENT" &&
+String(p.name || "").toLowerCase().includes(query)
+);
+
+const grid = document.getElementById("productGrid");
+if(!grid) return;
+
+grid.innerHTML = list.length
+  ? list.map(renderProductCard).join("")
+  : `<div class="panel">Belum ada Permanent Fruit yang tersedia.</div>`;
+};
+
+window.renderAllFruits = () => {
+const input = document.getElementById("allFruitSearch");
+const query = (input?.value || "").toLowerCase().trim();
+const list = products.filter(p =>
+(allFruitCat === "ALL" || String(p.category || "").toUpperCase() === allFruitCat) &&
+String(p.name || "").toLowerCase().includes(query));
+const grid = document.getElementById("allFruitGrid");
+if(!grid) return;
+grid.innerHTML = list.length ? list.map(renderProductCard).join("") : `<div class="panel">Buah tidak ditemukan.</div>`;
+};
+
+function openAllFruitsPage(){
+ document.getElementById("products").classList.add("nzr-hidden");
+ document.getElementById("allFruitsPage").classList.remove("nzr-hidden");
+ renderAllFruits();
+ document.getElementById("allFruitsPage").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function closeAllFruitsPage(){
+ document.getElementById("allFruitsPage").classList.add("nzr-hidden");
+ document.getElementById("products").classList.remove("nzr-hidden");
+ document.getElementById("products").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+/* =========================================================
+   OPEN CHECKOUT
+========================================================= */
+
+window.openCheckout = id => {
+
+selected =
+products.find(
+p => p.id === id
+);
+
+if(!selected) return;
+
+voucher = null;
+
+document.getElementById(
+"checkoutProduct"
+).textContent =
+`${selected.name} — ${money(selected.price)} / unit`;
+
+document.getElementById("qty").value = 1;
+
+document.getElementById(
+"voucherCode"
+).value = "";
+
+document.getElementById(
+"voucherMsg"
+).textContent = "";
+
+document.getElementById(
+"checkoutMsg"
+).textContent = "";
+
+updateTotal();
+
+document.getElementById(
+"checkoutModal"
+).classList.remove("hidden");
+
+};
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+function closeCheckout(){
+
+document.getElementById(
+"checkoutModal"
+).classList.add("hidden");
+
+}
+
+function closePayment(){
+
+document.getElementById(
+"paymentModal"
+).classList.add("hidden");
+
+}
+
+document.getElementById(
+"closeCheckout"
+).onclick =
+closeCheckout;
+
+document.getElementById(
+"closePayment"
+).onclick =
+closePayment;
+
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+document.getElementById(
+"qty"
+).addEventListener(
+"input",
+updateTotal
+);
+
+[
+"robloxUser",
+"customerEmail",
+"requestedSchedule",
+"voucherCode"
+].forEach(id => {
+
+document.getElementById(id)
+.addEventListener(
+"input",
+saveDraft
+);
+
+});
+
+
+/* =========================================================
+   RESTORE
+========================================================= */
+
+document.getElementById(
+"resumeSavedBtn"
+).onclick = () => {
+
+if(restoreDraft()){
+
+document.getElementById(
+"checkoutMsg"
+).textContent =
+"Data checkout berhasil dipulihkan.";
+
+}else{
+
+document.getElementById(
+"checkoutMsg"
+).textContent =
+"Belum ada data checkout tersimpan.";
+
+}
+
+};
+
+
+/* =========================================================
+   VOUCHER
+========================================================= */
+
+document.getElementById(
+"applyVoucher"
+).onclick =
+async () => {
+
+const code =
+document.getElementById(
+"voucherCode"
+).value.trim().toUpperCase();
+
+const msg =
+document.getElementById("voucherMsg");
+
+msg.className = "";
+msg.textContent =
+"Memeriksa voucher...";
+
+const result =
+await validateVoucher(code);
+
+if(!result.ok){
+
+voucher = null;
+
+msg.className =
+"nzr-error";
+
+msg.textContent =
+result.message;
+
+}else{
+
+voucher =
+result.voucher;
+
+msg.className =
+"nzr-success";
+
+msg.textContent =
+result.message;
+
+}
+
+updateTotal();
+
+};
+
+
+/* =========================================================
+   CREATE ORDER
+========================================================= */
+
+document.getElementById("createOrderBtn").onclick = async () => {
+
+if(!selected) return;
+
+const orderBtn = document.getElementById("createOrderBtn");
+if(orderBtn.disabled) return;
+
+const username =
+document.getElementById(
+"robloxUser"
+).value.trim();
+
+const email =
+document.getElementById(
+"customerEmail"
+).value.trim();
+
+const qty =
+Math.max(1, Math.floor(Number(document.getElementById("qty").value || 1)));
+
+const schedule =
+document.getElementById(
+"requestedSchedule"
+).value.trim();
+
+const voucherCode =
+document.getElementById(
+"voucherCode"
+).value.trim().toUpperCase();
+
+if(!username || !email){
+
+document.getElementById(
+"checkoutMsg"
+).textContent =
+"Isi Roblox username dan email terlebih dahulu.";
+
+return;
+
+}
+
+if(!schedule){
+
+document.getElementById(
+"checkoutMsg"
+).textContent =
+"Isi jadwal yang kamu inginkan terlebih dahulu.";
+
+return;
+
+}
+
+
+/* RECHECK VOUCHER */
+
+if(voucherCode){
+
+const result =
+await validateVoucher(voucherCode);
+
+if(!result.ok){
+
+voucher = null;
+
+document.getElementById(
+"voucherMsg"
+).className =
+"nzr-error";
+
+document.getElementById(
+"voucherMsg"
+).textContent =
+result.message;
+
+updateTotal();
+
+return;
+
+}
+
+voucher =
+result.voucher;
+
+}
+
+
+/* RECHECK STOCK */
+
+try{
+
+const {db} =
+await import("./database.js");
+
+const {
+doc,
+getDoc
+} =
+await import(
+"https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js"
+);
+
+const snapshot =
+await getDoc(
+doc(db,"products",selected.id)
+);
+
+if(!snapshot.exists()){
+
+document.getElementById(
+"checkoutMsg"
+).textContent =
+"Produk sudah tidak ditemukan.";
+
+return;
+
+}
+
+const latest = {
+id:snapshot.id,
+...snapshot.data()
+};
+
+const latestStock =
+Number(latest.stock || 0);
+
+if(latestStock < qty){
+
+products =
+products.map(
+p =>
+p.id === selected.id
+? latest
+: p
+);
+
+selected = latest;
+
+renderProducts();
+
+document.getElementById(
+"checkoutMsg"
+).textContent =
+"Stok berubah. Jumlah yang kamu pilih sudah tidak tersedia.";
+
+return;
+
+}
+
+selected = latest;
+
+}catch(error){
+
+console.error(error);
+
+document.getElementById(
+"checkoutMsg"
+).textContent =
+"Gagal memeriksa stok terbaru.";
+
+return;
+
+}
+
+
+/* PRICE */
+
+const subtotal =
+Number(selected.price || 0) * qty;
+
+const discount =
+calculateDiscount(subtotal);
+
+const total =
+Math.max(
+0,
+subtotal - discount
+);
+
+const invoice =
+generateInvoiceId();
+
+document.getElementById("checkoutMsg").textContent = "Membuat pesanan...";
+orderBtn.disabled = true;
+orderBtn.dataset.oldText = orderBtn.innerHTML;
+orderBtn.innerHTML = "MEMPROSES...";
+
+/* CREATE */
+
+const result =
+await createOrderWithStock(
+invoice,
+selected.id,
+qty,
+{
+
+product_name:
+selected.name,
+
+product_id:
+selected.id,
+
+unit_price:
+Number(selected.price || 0),
+
+subtotal_price:
+subtotal,
+
+discount_amount:
+discount,
+
+total_price:
+total,
+
+voucher_code:
+voucher?.code || voucher?.id || "",
+
+voucher_id:
+voucher?.id || "",
+
+roblox_username:
+username,
+
+customer_email:
+email,
+
+requested_schedule:
+schedule,
+
+payment_method:
+"QRIS_DANA",
+
+payment_status:
+"UNPAID",
+
+payment_proof_url:
+"",
+
+status:
+"WAITING_PAYMENT",
+
+estimated_process:
+"Menunggu pembayaran dan verifikasi admin"
+
+}
+);
+
+
+if(!result.success){
+
+document.getElementById(
+"checkoutMsg"
+).textContent =
+result.error ||
+"Gagal membuat pesanan.";
+
+return;
+
+}
+
+
+currentOrder = {
+invoice,
+product:selected,
+qty,
+subtotal,
+discount,
+total
+};
+
+localStorage.setItem(
+"nanzera_last_invoice",
+invoice
+);
+
+document.getElementById(
+"invoiceSearch"
+).value =
+invoice;
+
+saveDraft();
+
+closeCheckout();
+
+showPaymentPage(currentOrder);
+
+};
+
+
+/* =========================================================
+   PAYMENT PAGE
+========================================================= */
+
+function showPaymentPage(order){
+
+document.getElementById(
+"paymentContent"
+).innerHTML =
+
+`
+
+<div class="nzr-pay-grid">
+
+<div>
+
+<div class="eyebrow">
+INVOICE
+</div>
+
+<div class="nzr-invoice">
+${safe(order.invoice)}
+</div>
+
+<button
+class="btn nzr-copy"
+id="copyInvoiceBtn"
+style="margin-top:10px">
+📋 COPY INVOICE
+</button>
+
+<div
+class="nzr-card"
+style="margin-top:16px;">
+
+<div class="nzr-info-row">
+<span>Produk</span>
+<b>${safe(order.product.name)}</b>
+</div>
+
+<div class="nzr-info-row">
+<span>Jumlah</span>
+<b>${order.qty}</b>
+</div>
+
+<div class="nzr-info-row">
+<span>Subtotal</span>
+<b>${money(order.subtotal)}</b>
+</div>
+
+<div class="nzr-info-row">
+<span>Diskon</span>
+<b>-${money(order.discount)}</b>
+</div>
+
+<div class="nzr-total">
+${money(order.total)}
+</div>
+
+</div>
+
+<div
+class="nzr-notice"
+style="margin-top:15px;">
+
+Bayar sesuai nominal:
+
+<br><br>
+
+<b style="font-size:18px;">
+${money(order.total)}
+</b>
+
+<br><br>
+
+Pembayaran menggunakan
+<b>QRIS DANA Bisnis</b>.
+
+</div>
+
+</div>
+
+
+<div>
+
+<div class="nzr-qris">
+
+<img
+src="${safe(QRIS_IMAGE_URL)}"
+alt="QRIS DANA Bisnis">
+
+<br>
+
+<b>QRIS DANA BISNIS</b>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div
+class="nzr-card"
+style="margin-top:18px;">
+
+<div class="eyebrow">
+BUKTI PEMBAYARAN
+</div>
+
+<p class="muted">
+
+Setelah pembayaran berhasil,
+upload screenshot/foto bukti pembayaran.
+
+</p>
+
+<div class="nzr-upload">
+
+<input
+type="file"
+id="paymentProofFile"
+accept="image/png,image/jpeg,image/webp">
+
+</div>
+
+<button
+class="btn btn-primary"
+id="uploadProofBtn"
+style="margin-top:10px;">
+
+📸 UPLOAD BUKTI PEMBAYARAN
+
+</button>
+
+<div
+id="proofMsg"
+class="muted"
+style="margin-top:8px;">
+</div>
+
+<div id="proofPreview"></div>
+
+</div>
+
+
+<div class="nzr-card">
+
+<div class="eyebrow">
+LIVE PAYMENT STATUS
+</div>
+
+<div
+id="paymentLiveStatus"
+class="nzr-payment-status">
+
+Menunggu pembayaran...
+
+</div>
+
+</div>
+
+
+<div class="nzr-card">
+
+<div class="eyebrow">
+PROCESS ESTIMATION
+</div>
+
+<div
+id="paymentEstimate"
+class="nzr-estimate">
+
+Menunggu pembayaran.
+
+</div>
+
+</div>
+
+`;
+
+
+document.getElementById(
+"paymentModal"
+).classList.remove("hidden");
+
+
+document.getElementById(
+"copyInvoiceBtn"
+).onclick =
+async () => {
+
+try{
+
+await navigator.clipboard.writeText(
+order.invoice
+);
+
+document.getElementById(
+"copyInvoiceBtn"
+).textContent =
+"✓ COPIED";
+
+}catch{}
+
+};
+
+
+document.getElementById(
+"uploadProofBtn"
+).onclick =
+() =>
+uploadProof(order.invoice);
+
+watchOrder();
+
+}
+
+
+/* =========================================================
+   COMPRESS IMAGE
+========================================================= */
+
+function compressImage(file){
+
+return new Promise(
+(resolve,reject) => {
+
+const reader =
+new FileReader();
+
+reader.onload =
+event => {
+
+const img =
+new Image();
+
+img.onload = () => {
+
+const maxWidth = 1200;
+
+const scale =
+Math.min(
+1,
+maxWidth / img.width
+);
+
+const canvas =
+document.createElement("canvas");
+
+canvas.width =
+Math.round(
+img.width * scale
+);
+
+canvas.height =
+Math.round(
+img.height * scale
+);
+
+const ctx =
+canvas.getContext("2d");
+
+ctx.drawImage(
+img,
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+let quality = .82;
+
+const make =
+() => {
+
+const data =
+canvas.toDataURL(
+"image/jpeg",
+quality
+);
+
+if(
+data.length > 850000 &&
+quality > .45
+){
+
+quality -= .08;
+
+make();
+
+return;
+
+}
+
+resolve(data);
+
+};
+
+make();
+
+};
+
+img.onerror =
+() =>
+reject(
+new Error("Gambar tidak dapat dibaca.")
+);
+
+img.src =
+event.target.result;
+
+};
+
+reader.onerror =
+() =>
+reject(
+new Error("Gagal membaca file.")
+);
+
+reader.readAsDataURL(file);
+
+});
+
+}
+
+
+/* =========================================================
+   UPLOAD PAYMENT PROOF
+========================================================= */
+
+async function uploadProof(invoice){
+
+const file =
+document.getElementById(
+"paymentProofFile"
+).files[0];
+
+const msg =
+document.getElementById("proofMsg");
+
+if(!file){
+
+msg.className =
+"nzr-error";
+
+msg.textContent =
+"Pilih bukti pembayaran terlebih dahulu.";
+
+return;
+
+}
+
+const allowed = [
+"image/png",
+"image/jpeg",
+"image/webp"
+];
+
+if(!allowed.includes(file.type)){
+
+msg.className =
+"nzr-error";
+
+msg.textContent =
+"Gunakan PNG, JPG/JPEG atau WEBP.";
+
+return;
+
+}
+
+
+/*
+  Kita kompres gambar terlebih dahulu.
+  Ini menghindari dokumen Firestore menjadi
+  terlalu besar.
+*/
+
+msg.className = "";
+
+msg.textContent =
+"Mengompres bukti pembayaran...";
+
+
+try{
+
+const compressed =
+await compressImage(file);
+
+
+if(compressed.length > 950000){
+
+msg.className =
+"nzr-error";
+
+msg.textContent =
+"Gambar masih terlalu besar. Gunakan foto/screenshot yang lebih kecil.";
+
+return;
+
+}
+
+
+msg.textContent =
+"Mengirim bukti pembayaran...";
+
+
+const {
+db
+} =
+await import("./database.js");
+
+const {
+doc,
+updateDoc,
+serverTimestamp
+} =
+await import(
+"https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js"
+);
+
+
+await updateDoc(
+
+doc(
+db,
+"transactions",
+invoice
+),
+
+{
+
+payment_proof_url:
+compressed,
+
+payment_proof_name:
+file.name,
+
+payment_proof_uploaded_at:
+serverTimestamp(),
+
+payment_status:
+"PROOF_UPLOADED",
+
+status:
+"WAITING_PAYMENT",
+
+estimated_process:
+"Menunggu verifikasi pembayaran admin",
+
+last_updated:
+serverTimestamp()
+
+}
+
+);
+
+
+/* PREVIEW */
+
+document.getElementById(
+"proofPreview"
+).innerHTML =
+`
+<div class="nzr-proof-preview">
+<img
+src="${safe(compressed)}"
+alt="Bukti pembayaran">
+</div>
+`;
+
+
+msg.className =
+"nzr-success";
+
+msg.textContent =
+"Bukti pembayaran berhasil dikirim. Mengalihkan ke Cek Transaksi...";
+
+
+/*
+  BUG FIX:
+  Payment modal ditutup,
+  invoice dipasang ke pencarian,
+  lalu halaman scroll ke Cek Transaksi.
+*/
+
+document.getElementById(
+"invoiceSearch"
+).value =
+invoice;
+
+localStorage.setItem(
+"nanzera_last_invoice",
+invoice
+);
+
+saveDraft();
+
+
+setTimeout(
+() => {
+
+closePayment();
+
+document.getElementById(
+"status"
+).scrollIntoView({
+behavior:"smooth",
+block:"start"
+});
+
+watchOrder();
+
+},
+700
+);
+
+
+}catch(error){
+
+console.error(error);
+
+msg.className =
+"nzr-error";
+
+msg.textContent =
+"Gagal mengirim bukti pembayaran. Coba lagi.";
+
+}
+
+}
+
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+const timelineStatuses = [
+
+"WAITING_PAYMENT",
+
+"PAYMENT_CONFIRMED",
+
+"WAITING_SCHEDULE",
+
+"SCHEDULE_CONFIRMED",
+
+"ADD_USERNAME_ADMIN",
+
+"TRADING",
+
+"COMPLETED"
+
+];
+
+
+const timelineLabels = {
+
+WAITING_PAYMENT:
+"Pembayaran",
+
+PAYMENT_CONFIRMED:
+"Dibayar",
+
+WAITING_SCHEDULE:
+"Jadwal",
+
+SCHEDULE_CONFIRMED:
+"Jadwal OK",
+
+ADD_USERNAME_ADMIN:
+"Add Username Admin",
+
+TRADING:
+"Trade",
+
+COMPLETED:
+"Selesai"
+
+};
+
+
+const timelineIcons = {
+
+WAITING_PAYMENT:"💳",
+
+PAYMENT_CONFIRMED:"✓",
+
+WAITING_SCHEDULE:"🕐",
+
+SCHEDULE_CONFIRMED:"📅",
+
+ADD_USERNAME_ADMIN:"👤",
+
+TRADING:"🤝",
+
+COMPLETED:"🏆"
+
+};
+
+
+/* =========================================================
+   WATCH TRANSACTION
+========================================================= */
+
+window.watchOrder = () => {
+
+if(stopOrderWatch)
+stopOrderWatch();
+
+const invoice =
+document.getElementById(
+"invoiceSearch"
+).value.trim().toUpperCase();
+
+const box =
+document.getElementById(
+"orderStatus"
+);
+
+box.classList.remove("hidden");
+
+if(!invoice){
+
+box.innerHTML =
+`
+<p class="muted">
+Masukkan invoice terlebih dahulu.
+</p>
+`;
+
+return;
+
+}
+
+localStorage.setItem(
+"nanzera_last_invoice",
+invoice
+);
+
+saveDraft();
+
+box.innerHTML =
+`
+<p class="muted">
+Memantau transaksi...
+</p>
+`;
+
+stopOrderWatch =
+watchTransaction(
+invoice,
+order => {
+
+if(!order){
+
+box.innerHTML =
+`
+<p class="muted">
+Invoice tidak ditemukan.
+</p>
+`;
+
+return;
+
+}
+
+
+/* =========================================================
+   CANCELLED
+========================================================= */
+
+if(
+order.status === "CANCELLED"
+){
+
+box.innerHTML =
+
+`
+<div class="status-card">
+
+<div class="eyebrow">
+TRANSAKSI DIBATALKAN
+</div>
+
+<div class="nzr-invoice">
+${safe(order.invoice_id)}
+</div>
+
+<h3>
+❌ Dibatalkan
+</h3>
+
+<p class="muted">
+${safe(
+order.cancellation_reason ||
+"Transaksi dibatalkan oleh admin."
+)}
+</p>
+
+${
+order.admin_message
+?
+`
+<div class="nzr-message">
+<b>Pesan Admin</b>
+<br>
+${safe(order.admin_message)}
+</div>
+`
+:
+""
+}
+
+</div>
+`;
+
+return;
+
+}
+
+
+/* =========================================================
+   STATUS INDEX
+========================================================= */
+
+let currentIndex =
+timelineStatuses.indexOf(
+order.status
+);
+
+
+/*
+  Beberapa admin panel mungkin masih memakai
+  TRADING langsung setelah SCHEDULE_CONFIRMED.
+*/
+
+if(currentIndex < 0){
+
+if(order.status === "TRADING")
+currentIndex = timelineStatuses.indexOf("TRADING");
+
+else if(
+order.status === "COMPLETED"
+)
+currentIndex = timelineStatuses.indexOf("COMPLETED");
+
+else
+currentIndex = 0;
+
+}
+
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+const progressPercent =
+currentIndex /
+(timelineStatuses.length - 1)
+* 94;
+
+
+const timeline =
+timelineStatuses.map(
+(s,i) => {
+
+const done =
+i <= currentIndex;
+
+const current =
+i === currentIndex;
+
+return `
+
+<div
+class="nzr-step
+${done ? "done" : ""}
+${current ? "current" : ""}">
+
+<div class="nzr-dot">
+
+${timelineIcons[s]}
+
+</div>
+
+<div class="nzr-step-title">
+
+${timelineLabels[s]}
+
+</div>
+
+<div class="nzr-step-sub">
+
+${
+s === "ADD_USERNAME_ADMIN"
+&& current
+?
+"Username admin tersedia"
+:
+done
+?
+"Selesai"
+:
+"Menunggu"
+}
+
+</div>
+
+</div>
+
+`;
+
+}
+).join("");
+
+
+/* =========================================================
+   ADMIN USERNAME
+========================================================= */
+
+let adminBox = "";
+
+
+/*
+  Username hanya muncul jika transaksi sudah
+  mencapai ADD_USERNAME_ADMIN atau sesudahnya.
+*/
+
+if(
+currentIndex >=
+timelineStatuses.indexOf(
+"ADD_USERNAME_ADMIN"
+)
+){
+
+adminBox =
+
+`
+
+<div class="nzr-admin-box">
+
+<div class="eyebrow">
+ADMIN ROBLOX
+</div>
+
+<div class="nzr-admin-user">
+vario2026 / xbiglads
+</div>
+
+<div class="muted">
+Username admin Roblox untuk proses trade.
+</div>
+
+<div class="nzr-sacrifice">
+🍎 Siapkan buah tumbal kalian 🍎
+</div>
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================================
+   SCHEDULE PROPOSAL
+========================================================= */
+
+let scheduleAction = "";
+
+if(order.admin_schedule_proposal){
+
+scheduleAction =
+
+`
+
+<div
+class="nzr-card"
+style="margin-top:15px;">
+
+<div class="eyebrow">
+USULAN JADWAL ADMIN
+</div>
+
+<h3>
+${safe(order.admin_schedule_proposal)}
+</h3>
+
+<p class="muted">
+Admin mengusulkan jadwal berbeda
+dari jadwal yang kamu pilih.
+</p>
+
+<div class="nzr-actions">
+
+<button
+class="btn btn-primary"
+id="acceptSchedule">
+✓ TERIMA
+</button>
+
+<button
+class="btn"
+id="rejectSchedule">
+✕ TOLAK
+</button>
+
+</div>
+
+</div>
+
+`;
+
+}
+
+
+/* =========================================================
+   STATUS LABEL
+========================================================= */
+
+const labels = {
+
+WAITING_PAYMENT:
+"Menunggu Pembayaran",
+
+PAYMENT_CONFIRMED:
+"Pembayaran Dikonfirmasi",
+
+WAITING_SCHEDULE:
+"Menunggu Jadwal Trade",
+
+SCHEDULE_CONFIRMED:
+"Jadwal Trade Dikonfirmasi",
+
+ADD_USERNAME_ADMIN:
+"Add Username Admin",
+
+TRADING:
+"Proses Trade",
+
+COMPLETED:
+"Selesai",
+
+CANCELLED:
+"Dibatalkan"
+
+};
+
+
+/* =========================================================
+   STATUS CONTENT
+========================================================= */
+
+box.innerHTML =
+
+`
+
+<div class="status-card">
+
+<div class="eyebrow">
+LIVE ORDER STATUS
+</div>
+
+<div class="nzr-invoice">
+${safe(order.invoice_id)}
+</div>
+
+<h3>
+${safe(
+labels[order.status] ||
+order.status
+)}
+</h3>
+
+<p class="muted">
+${safe(order.product_name)}
+•
+${money(order.total_price)}
+</p>
+
+
+<div class="nzr-timeline-wrap">
+
+<div class="nzr-timeline">
+
+<div class="nzr-line-bg"></div>
+
+<div
+class="nzr-line-progress"
+style="width:${progressPercent}%">
+</div>
+
+${timeline}
+
+</div>
+
+</div>
+
+
+${adminBox}
+
+
+${
+order.payment_status
+?
+`
+<div class="nzr-payment-status">
+<b>Status pembayaran:</b>
+<br>
+${safe(order.payment_status)}
+</div>
+`
+:
+""
+}
+
+
+${
+order.estimated_process
+?
+`
+<div class="nzr-estimate">
+<b>📊 Estimasi proses</b>
+<br><br>
+${safe(order.estimated_process)}
+</div>
+`
+:
+""
+}
+
+
+${
+order.requested_schedule
+?
+`
+<div class="nzr-message">
+<b>🗓 Jadwal yang diminta</b>
+<br>
+${safe(order.requested_schedule)}
+</div>
+`
+:
+""
+}
+
+
+${
+order.trade_schedule
+?
+`
+<div class="nzr-message">
+<b>🗓 Jadwal trade</b>
+<br>
+${safe(order.trade_schedule)}
+</div>
+`
+:
+""
+}
+
+
+${
+order.admin_message
+?
+`
+<div class="nzr-message">
+<b>💬 Pesan Admin</b>
+<br>
+${safe(order.admin_message)}
+</div>
+`
+:
+""
+}
+
+
+${
+order.redeem_code
+?
+`
+<div class="nzr-message">
+<b>🔑 Kode Transaksi</b>
+<br><br>
+<strong style="
+font-size:20px;
+letter-spacing:.1em;">
+${safe(order.redeem_code)}
+</strong>
+</div>
+`
+:
+""
+}
+
+
+${scheduleAction}
+
+</div>
+`;
+
+
+/* =========================================================
+   SCHEDULE BUTTONS
+========================================================= */
+
+const accept =
+document.getElementById(
+"acceptSchedule"
+);
+
+const reject =
+document.getElementById(
+"rejectSchedule"
+);
+
+if(accept){
+
+accept.onclick =
+() =>
+respondSchedule(
+invoice,
+true
+);
+
+}
+
+if(reject){
+
+reject.onclick =
+() =>
+respondSchedule(
+invoice,
+false
+);
+
+}
+
+
+/* =========================================================
+   PAYMENT LIVE STATUS
+========================================================= */
+
+const paymentStatus =
+document.getElementById(
+"paymentLiveStatus"
+);
+
+if(paymentStatus){
+
+paymentStatus.innerHTML =
+
+`
+<b>
+${safe(
+labels[order.status] ||
+order.status
+)}
+</b>
+
+<br>
+
+Status pembayaran:
+${safe(
+order.payment_status ||
+"UNPAID"
+)}
+`;
+
+}
+
+
+const estimate =
+document.getElementById(
+"paymentEstimate"
+);
+
+if(estimate){
+
+estimate.textContent =
+order.estimated_process ||
+"Menunggu pembaruan admin.";
+
+}
+
+});
+
+};
+
+
+/* =========================================================
+   SCHEDULE RESPONSE
+========================================================= */
+
+async function respondSchedule(
+invoice,
+accepted
+){
+
+try{
+
+const {db} =
+await import("./database.js");
+
+const {
+doc,
+updateDoc,
+serverTimestamp
+} =
+await import(
+"https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js"
+);
+
+await updateDoc(
+
+doc(
+db,
+"transactions",
+invoice
+),
+
+{
+
+schedule_response:
+accepted
+? "ACCEPTED"
+: "REJECTED",
+
+status:
+accepted
+? "SCHEDULE_CONFIRMED"
+: "WAITING_SCHEDULE",
+
+last_updated:
+serverTimestamp(),
+
+admin_message:
+accepted
+?
+"Jadwal trade telah diterima pelanggan."
+:
+"Pelanggan menolak jadwal yang ditawarkan."
+
+}
+
+);
+
+}catch(error){
+
+console.error(error);
+
+alert(
+"Gagal memperbarui jadwal."
+);
+
+}
+
+}
+
+
+/* =========================================================
+   CHECK STATUS
+========================================================= */
+
+document.getElementById(
+"checkBtn"
+).onclick =
+watchOrder;
+
+
+document.getElementById(
+"invoiceSearch"
+).addEventListener(
+"keydown",
+event => {
+
+if(event.key === "Enter")
+watchOrder();
+
+}
+);
+
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+document.querySelectorAll(
+".filter"
+).forEach(
+button => {
+
+button.onclick = () => {
+
+document.querySelectorAll(
+".filter"
+).forEach(
+x =>
+x.classList.remove("active")
+);
+
+button.classList.add("active");
+
+activeCat =
+button.dataset.cat;
+
+renderProducts();
+
+};
+
+}
+);
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+document.getElementById(
+"search"
+).addEventListener(
+"input",
+renderProducts
+);
+
+
+/* =========================================================
+   WHATSAPP
+========================================================= */
+
+document.getElementById(
+"waReseller"
+).href =
+
+`https://wa.me/${WA_NUMBER}?text=${
+encodeURIComponent(
+"Halo Nanzera Store, saya ingin informasi reseller."
+)
+}`;
+
+
+document.getElementById(
+"waHelp"
+).href =
+
+`https://wa.me/${WA_NUMBER}?text=${
+encodeURIComponent(
+"Halo Nanzera Store, saya membutuhkan bantuan/komplain."
+)
+}`;
+
+
+/* =========================================================
+   FIREBASE PRODUCTS
+========================================================= */
+
+watchProducts(
+data => {
+
+products = data || [];
+renderProducts();
+
+if(!selected)
+restoreDraft();
+
+}
+);
+
+
+/* =========================================================
+   RESTORE LAST INVOICE
+========================================================= */
+
+const lastInvoice =
+localStorage.getItem(
+"nanzera_last_invoice"
+);
+
+if(lastInvoice){
+
+document.getElementById(
+"invoiceSearch"
+).value =
+lastInvoice;
+
+}
+
+</script>
+
+</body>
+   </html>
