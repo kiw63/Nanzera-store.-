@@ -385,9 +385,8 @@ color:#d9c2ff;
 </a>
 
 <nav class="nav">
-<a href="index.html">🍇 FRUIT</a>
-<a class="active" href="#home">♾️ PERMANENT</a>
-<a href="#products">PERMANENT FRUIT</a>
+<a class="active" href="#home">HOME</a>
+<a href="#products">PRODUCTS</a>
 <a href="#how">HOW IT WORKS</a>
 <a href="#status">CEK TRANSAKSI</a>
 <a href="#support">SUPPORT</a>
@@ -471,30 +470,113 @@ bukti pembayaran dan status transaksi realtime.
 
 <!-- PRODUCTS -->
 <section id="products" class="section">
+
 <div class="container">
+
 <div class="section-head">
+
 <div>
-<div class="eyebrow">PERMANENT FRUIT</div>
-<h2 class="section-title">♾️ PERMANENT FRUIT</h2>
-<div class="section-sub">Permanent Fruit tersedia di sini. Metode Gift/Trade ditentukan oleh Admin.</div>
+
+<div class="eyebrow">
+PERMANENT FRUIT
 </div>
+
+<h2 class="section-title">
+PERMANENT FRUIT
+</h2>
+
+<div class="section-sub">
+Harga dan stok dibaca langsung dari Firebase.
+</div>
+
+</div>
+
 <div class="toolbar">
+
 <div class="search">
-<input id="search" placeholder="Cari Permanent Fruit...">
-<button id="searchBtn" type="button">⌕</button>
+
+<input
+id="search"
+placeholder="Cari buah...">
+
+<button id="searchBtn">
+⌕
+</button>
+
 </div>
+
 </div>
+
 </div>
+
+<div class="filters">
+
+<button class="filter active" data-cat="ALL">
+ALL
+</button>
+
+<button class="filter" data-cat="MYTHICAL">
+MYTHICAL
+</button>
+
+<button class="filter" data-cat="LEGENDARY">
+LEGENDARY
+</button>
+
+<button class="filter" data-cat="LIMITED">
+LIMITED
+</button>
+
+</div>
+
+<div class="featured-actions">
+  <button class="btn btn-primary" type="button" id="viewAllFruitsBtn">🌐 LIHAT SEMUA BUAH</button>
+</div>
+<div class="featured-actions" style="margin-top:8px;"><a class="btn" href="index.html">🍇 KEMBALI KE FRUIT</a></div>
+
 <div id="productGrid" class="product-grid">
-<div class="panel">Memuat Permanent Fruit...</div>
+
+<div class="panel">
+Memuat produk...
 </div>
+
+</div>
+
 </div>
 </section>
 
 
+
 <!-- ALL FRUITS -->
-
-
+<section id="allFruitsPage" class="section all-fruits-page nzr-hidden">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">COMPLETE CATALOG</div>
+        <h2 class="section-title">ALL FRUITS</h2>
+        <div class="section-sub">Semua fruit yang tersedia di NANZERA STORE.</div>
+      </div>
+      <div class="toolbar">
+        <div class="search">
+          <input id="allFruitSearch" placeholder="Cari semua buah...">
+          <button type="button">⌕</button>
+        </div>
+      </div>
+    </div>
+    <div class="filters" id="allFruitFilters">
+      <button class="filter active" data-all-cat="ALL">ALL</button>
+      <button class="filter" data-all-cat="MYTHICAL">MYTHICAL</button>
+      <button class="filter" data-all-cat="LEGENDARY">LEGENDARY</button>
+      <button class="filter" data-all-cat="LIMITED">LIMITED</button>
+    </div>
+    <div class="all-fruits-actions">
+      <button class="btn" type="button" id="backFeaturedBtn">← KEMBALI KE FEATURED</button>
+    </div>
+    <div id="allFruitGrid" class="product-grid">
+      <div class="panel">Memuat semua buah...</div>
+    </div>
+  </div>
+</section>
 
 <!-- HOW -->
 <section id="how" class="section">
@@ -1352,18 +1434,12 @@ ${p.method ? `<div class="nzr-permanent-method">${p.method === "GIFT" ? "🎁 Gi
 window.renderProducts = () => {
 const input = document.getElementById("search");
 const query = (input?.value || "").toLowerCase().trim();
-
 const list = products.filter(p =>
 String(p.category || "").toUpperCase() === "PERMANENT" &&
-String(p.name || "").toLowerCase().includes(query)
-);
-
+String(p.name || "").toLowerCase().includes(query));
 const grid = document.getElementById("productGrid");
 if(!grid) return;
-
-grid.innerHTML = list.length
-  ? list.map(renderProductCard).join("")
-  : `<div class="panel">Belum ada Permanent Fruit yang tersedia.</div>`;
+grid.innerHTML = list.length ? list.map(renderProductCard).join("") : `<div class="panel">Belum ada fruit populer yang sesuai pencarian/filter.</div>`;
 };
 
 window.renderAllFruits = () => {
@@ -3215,6 +3291,19 @@ encodeURIComponent(
 
 
 /* =========================================================
+   ALL FRUITS CONTROLS
+========================================================= */
+document.getElementById("viewAllFruitsBtn")?.addEventListener("click",openAllFruitsPage);
+document.getElementById("backFeaturedBtn")?.addEventListener("click",closeAllFruitsPage);
+document.getElementById("allFruitSearch")?.addEventListener("input",renderAllFruits);
+document.querySelectorAll("[data-all-cat]").forEach(btn=>btn.addEventListener("click",()=>{
+ document.querySelectorAll("[data-all-cat]").forEach(x=>x.classList.remove("active"));
+ btn.classList.add("active");
+ allFruitCat=btn.dataset.allCat;
+ renderAllFruits();
+}));
+
+/* =========================================================
    FIREBASE PRODUCTS
 ========================================================= */
 
@@ -3223,6 +3312,7 @@ data => {
 
 products = data || [];
 renderProducts();
+renderAllFruits();
 
 if(!selected)
 restoreDraft();
