@@ -1354,38 +1354,11 @@ ${p.method === "GIFT" ? `<div class="nzr-permanent-method">🎁 Gift</div>` : p.
 <div class="price">${money(p.price)}</div>
 <div class="stock-line">● STOK TERSEDIA: ${stock}</div>
 <div class="product-actions">
-<button type="button" class="btn btn-primary order-now-btn" ${out?"disabled":""} data-product-id="${safe(p.id)}">ORDER NOW 🛒</button>
+<button type="button" class="btn btn-primary order-now-btn" ${out?"disabled":""} onclick="window.openCheckout(${JSON.stringify(String(p.id))})">ORDER NOW 🛒</button>
 </div>
 </div>
 </article>`;
 };
-
-// ORDER NOW: bind directly after every Firebase render so Permanent
-// products always open the existing checkout modal.
-function bindPermanentOrderButtons(){
- const buttons = document.querySelectorAll("#productGrid .order-now-btn, #allFruitGrid .order-now-btn");
- buttons.forEach(button => {
-   if(button.dataset.checkoutBound === "1") return;
-   button.dataset.checkoutBound = "1";
-   button.addEventListener("click", event => {
-     event.preventDefault();
-     event.stopPropagation();
-     const id = button.dataset.productId;
-     if(id) openCheckout(id);
-   });
- });
-}
-
-// Fallback for any ORDER NOW button created outside the normal render path.
-document.addEventListener("click", event => {
- const button = event.target?.closest?.(".order-now-btn");
- if(!button) return;
- const id = button.dataset.productId;
- if(id) {
-   event.preventDefault();
-   openCheckout(id);
- }
-});
 
 window.renderProducts = () => {
 const input = document.getElementById("search");
@@ -1418,14 +1391,14 @@ bindPermanentOrderButtons();
 };
 
 function openAllFruitsPage(){
- document.getElementById("products").classList.add("nzr-hidden");
- document.getElementById("allFruitsPage").classList.remove("nzr-hidden");
+ document.getElementById("products")?.classList.add("nzr-hidden");
+ document.getElementById("allFruitsPage")?.classList.remove("nzr-hidden");
  renderAllFruits();
- document.getElementById("allFruitsPage").scrollIntoView({behavior:"smooth",block:"start"});
+ document.getElementById("allFruitsPage")?.scrollIntoView({behavior:"smooth",block:"start"});
 }
 function closeAllFruitsPage(){
- document.getElementById("allFruitsPage").classList.add("nzr-hidden");
- document.getElementById("products").classList.remove("nzr-hidden");
+ document.getElementById("allFruitsPage")?.classList.add("nzr-hidden");
+ document.getElementById("products")?.classList.remove("nzr-hidden");
  document.getElementById("products").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
@@ -1435,40 +1408,35 @@ function closeAllFruitsPage(){
 
 function openCheckout(id){
 
-selected =
-products.find(
-p => p.id === id
-);
+  const normalizedId = String(id ?? "");
 
-if(!selected) return;
+  selected = products.find(
+    p => String(p?.id ?? "") === normalizedId
+  );
 
-voucher = null;
+  if(!selected){
+    console.error("Permanent checkout: product not found", id, products);
+    return;
+  }
 
-document.getElementById(
-"checkoutProduct"
-).textContent =
-`${selected.name} — ${money(selected.price)} / unit`;
+  const checkoutModal = document.getElementById("checkoutModal");
+  if(!checkoutModal){
+    console.error("Permanent checkout: checkoutModal tidak ditemukan.");
+    return;
+  }
 
-document.getElementById("qty").value = 1;
+  voucher = null;
 
-document.getElementById(
-"voucherCode"
-).value = "";
+  document.getElementById("checkoutProduct").textContent =
+    `${selected.name} — ${money(selected.price)} / unit`;
 
-document.getElementById(
-"voucherMsg"
-).textContent = "";
+  document.getElementById("qty").value = 1;
+  document.getElementById("voucherCode").value = "";
+  document.getElementById("voucherMsg").textContent = "";
+  document.getElementById("checkoutMsg").textContent = "";
 
-document.getElementById(
-"checkoutMsg"
-).textContent = "";
-
-updateTotal();
-
-document.getElementById(
-"checkoutModal"
-).classList.remove("hidden");
-
+  updateTotal();
+  checkoutModal.classList.remove("hidden");
 }
 
 window.openCheckout = openCheckout;
