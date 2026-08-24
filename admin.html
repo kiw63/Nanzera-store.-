@@ -851,15 +851,20 @@ textarea{
    </div>
 
    <div class="field">
-    <label>Kategori</label>
+    <label>Jenis Produk</label>
+    <select id="productType">
+     <option value="FRUIT">🍇 Fruit Biasa</option>
+     <option value="PERMANENT">♾️ Permanent Fruit</option>
+    </select>
+   </div>
 
+   <div class="field">
+    <label>Kategori / Rarity Fruit</label>
     <select id="productCategory">
      <option value="MYTHICAL">MYTHICAL</option>
      <option value="LEGENDARY">LEGENDARY</option>
      <option value="LIMITED">LIMITED</option>
-     <option value="PERMANENT">PERMANENT</option>
     </select>
-
    </div>
 
    <div class="field">
@@ -2185,7 +2190,7 @@ function renderProducts(){
 
     </td>
 
-    <td>${safe(p.category||"-")}</td>
+    <td>${String(p.product_type||p.type||p.category||"").toUpperCase()==="PERMANENT" || String(p.category||"").toUpperCase()==="PERMANENT" ? "♾️ PERMANENT" : safe(p.category||"-")}</td>
 
     <td>${money(p.price)}</td>
 
@@ -2241,6 +2246,7 @@ window.openProductModal=()=>{
  document.getElementById("productName").value="";
  document.getElementById("productPrice").value="";
  document.getElementById("productStock").value="";
+ document.getElementById("productType").value="FRUIT";
  document.getElementById("productCategory").value="MYTHICAL";
  document.getElementById("productMethod").value="";
  document.getElementById("productPopular").value="false";
@@ -2271,7 +2277,9 @@ window.editProduct=id=>{
  document.getElementById("productName").value=p.name||"";
  document.getElementById("productPrice").value=p.price||0;
  document.getElementById("productStock").value=p.stock||0;
- document.getElementById("productCategory").value=p.category||"MYTHICAL";
+ const legacyPermanent = String(p.category||"").toUpperCase()==="PERMANENT";
+ document.getElementById("productType").value = String(p.product_type||p.type||"").toUpperCase()==="PERMANENT" || legacyPermanent ? "PERMANENT" : "FRUIT";
+ document.getElementById("productCategory").value = legacyPermanent ? "MYTHICAL" : (p.category||"MYTHICAL");
  document.getElementById("productMethod").value=p.method||"";
  document.getElementById("productPopular").value=String(!!p.popular);
  document.getElementById("productImage").value=p.image_url||"";
@@ -2304,6 +2312,9 @@ window.saveProduct=async()=>{
    Number(document.getElementById("productStock").value||0)
   );
 
+ const productType=
+  document.getElementById("productType").value;
+
  const category=
   document.getElementById("productCategory").value;
 
@@ -2332,7 +2343,7 @@ window.saveProduct=async()=>{
 
  }
 
- if(category==="PERMANENT" && !method){
+ if(productType==="PERMANENT" && !method){
   document.getElementById("productMsg").textContent="Untuk Permanent Fruit, pilih Gift atau Trade.";
   return;
  }
@@ -2346,7 +2357,8 @@ window.saveProduct=async()=>{
     price,
     stock,
     category,
-    method:category==="PERMANENT" ? method : "",
+    product_type:productType,
+    method:productType==="PERMANENT" ? method : "",
     popular,
     image_url,
     description,
@@ -2688,4 +2700,4 @@ document.querySelectorAll(".modal").forEach(modal=>{
 </script>
 
 </body>
- </html>
+</html>
