@@ -385,8 +385,9 @@ color:#d9c2ff;
 </a>
 
 <nav class="nav">
-<a class="active" href="#home">HOME</a>
-<a href="#products">PRODUCTS</a>
+<a href="index.html">🍇 FRUIT</a>
+<a class="active" href="#home">♾️ PERMANENT</a>
+<a href="#products">PERMANENT FRUIT</a>
 <a href="#how">HOW IT WORKS</a>
 <a href="#status">CEK TRANSAKSI</a>
 <a href="#support">SUPPORT</a>
@@ -470,113 +471,33 @@ bukti pembayaran dan status transaksi realtime.
 
 <!-- PRODUCTS -->
 <section id="products" class="section">
-
 <div class="container">
-
 <div class="section-head">
-
 <div>
-
-<div class="eyebrow">
-PERMANENT FRUIT
+<div class="eyebrow">PERMANENT FRUIT</div>
+<h2 class="section-title">♾️ PERMANENT FRUIT</h2>
+<div class="section-sub">Permanent Fruit tersedia di sini. Metode Gift/Trade ditentukan oleh Admin.</div>
 </div>
-
-<h2 class="section-title">
-PERMANENT FRUIT
-</h2>
-
-<div class="section-sub">
-Harga dan stok dibaca langsung dari Firebase.
-</div>
-
-</div>
-
-<div class="toolbar">
-
-<div class="search">
-
-<input
-id="search"
-placeholder="Cari buah...">
-
-<button id="searchBtn">
-⌕
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="filters">
-
-<button class="filter active" data-cat="ALL">
-ALL
-</button>
-
-<button class="filter" data-cat="MYTHICAL">
-MYTHICAL
-</button>
-
-<button class="filter" data-cat="LEGENDARY">
-LEGENDARY
-</button>
-
-<button class="filter" data-cat="LIMITED">
-LIMITED
-</button>
-
-</div>
-
 <div class="featured-actions">
-  <button class="btn btn-primary" type="button" id="viewAllFruitsBtn">🌐 LIHAT SEMUA BUAH</button>
+  <a class="btn" href="index.html#products">← KEMBALI KE FRUITS</a>
 </div>
-<div class="featured-actions" style="margin-top:8px;"><a class="btn" href="index.html">🍇 KEMBALI KE FRUIT</a></div>
-
+<div class="toolbar">
+<div class="search">
+<input id="search" placeholder="Cari Permanent Fruit...">
+<button id="searchBtn" type="button">⌕</button>
+</div>
+</div>
+</div>
 <div id="productGrid" class="product-grid">
-
-<div class="panel">
-Memuat produk...
+<div class="panel">Memuat Permanent Fruit...</div>
 </div>
-
-</div>
-
 </div>
 </section>
-
 
 
 <!-- ALL FRUITS -->
-<section id="allFruitsPage" class="section all-fruits-page nzr-hidden">
-  <div class="container">
-    <div class="section-head">
-      <div>
-        <div class="eyebrow">COMPLETE CATALOG</div>
-        <h2 class="section-title">ALL FRUITS</h2>
-        <div class="section-sub">Semua fruit yang tersedia di NANZERA STORE.</div>
-      </div>
-      <div class="toolbar">
-        <div class="search">
-          <input id="allFruitSearch" placeholder="Cari semua buah...">
-          <button type="button">⌕</button>
-        </div>
-      </div>
-    </div>
-    <div class="filters" id="allFruitFilters">
-      <button class="filter active" data-all-cat="ALL">ALL</button>
-      <button class="filter" data-all-cat="MYTHICAL">MYTHICAL</button>
-      <button class="filter" data-all-cat="LEGENDARY">LEGENDARY</button>
-      <button class="filter" data-all-cat="LIMITED">LIMITED</button>
-    </div>
-    <div class="all-fruits-actions">
-      <button class="btn" type="button" id="backFeaturedBtn">← KEMBALI KE FEATURED</button>
-    </div>
-    <div id="allFruitGrid" class="product-grid">
-      <div class="panel">Memuat semua buah...</div>
-    </div>
-  </div>
-</section>
+
+
 
 <!-- HOW -->
 <section id="how" class="section">
@@ -1141,7 +1062,7 @@ if(selected){
 document.getElementById(
 "checkoutProduct"
 ).textContent =
-`${selected.name} — ${money(selected.price)} / unit`;
+`${selected.name} — ${money(selected.price)} / unit${selected.method ? ` • ${selected.method === "GIFT" ? "🎁 Gift" : "🔄 Trade"}` : ""}`;
 
 updateTotal();
 
@@ -1401,6 +1322,14 @@ saveDraft();
    PRODUCTS
 ========================================================= */
 
+// Permanent-only product detection. Supports the new product_type field
+// and old documents that used category: "PERMANENT".
+function isPermanentProduct(p){
+ const type = String(p?.product_type ?? p?.type ?? "").trim().toUpperCase();
+ const category = String(p?.category ?? "").trim().toUpperCase();
+ return p?.isPermanent === true || type === "PERMANENT" || category === "PERMANENT";
+}
+
 window.renderProductCard = p => {
 
 const stock = Number(p.stock || 0);
@@ -1420,34 +1349,50 @@ ${imageUrl ? `
 </div>
 <div class="product-info">
 <div class="product-name">${safe(p.name)} <span class="rarity">PERMANENT</span></div>
-${p.method ? `<div class="nzr-permanent-method">${p.method === "GIFT" ? "🎁 Gift" : "🔄 Trade"}</div>` : ""}
+${p.method === "GIFT" ? `<div class="nzr-permanent-method">🎁 Gift</div>` : p.method === "TRADE" ? `<div class="nzr-permanent-method">🔄 Trade</div>` : ""}
 <p>${safe(p.description || "Fruit Blox Fruits dengan proses order melalui website.")}</p>
 <div class="price">${money(p.price)}</div>
 <div class="stock-line">● STOK TERSEDIA: ${stock}</div>
 <div class="product-actions">
-<button class="btn btn-primary" ${out?"disabled":""} onclick="openCheckout(${JSON.stringify(p.id)})">ORDER NOW 🛒</button>
+<button type="button" class="btn btn-primary order-now-btn" ${out?"disabled":""} data-product-id="${safe(p.id)}">ORDER NOW 🛒</button>
 </div>
 </div>
 </article>`;
 };
 
+// Delegated click handler: survives Firebase realtime re-renders and
+// guarantees the Permanent page uses the same checkout modal.
+document.addEventListener("click", event => {
+ const button = event.target.closest(".order-now-btn");
+ if(!button) return;
+ event.preventDefault();
+ const id = button.dataset.productId;
+ if(id) window.openCheckout(id);
+});
+
 window.renderProducts = () => {
 const input = document.getElementById("search");
 const query = (input?.value || "").toLowerCase().trim();
+
 const list = products.filter(p =>
-String(p.category || "").toUpperCase() === "PERMANENT" &&
-String(p.name || "").toLowerCase().includes(query));
+ isPermanentProduct(p) &&
+ String(p.name || "").toLowerCase().includes(query)
+);
+
 const grid = document.getElementById("productGrid");
 if(!grid) return;
-grid.innerHTML = list.length ? list.map(renderProductCard).join("") : `<div class="panel">Belum ada fruit populer yang sesuai pencarian/filter.</div>`;
+
+grid.innerHTML = list.length
+  ? list.map(renderProductCard).join("")
+  : `<div class="panel">Belum ada Permanent Fruit yang tersedia.</div>`;
 };
 
 window.renderAllFruits = () => {
 const input = document.getElementById("allFruitSearch");
 const query = (input?.value || "").toLowerCase().trim();
 const list = products.filter(p =>
-(allFruitCat === "ALL" || String(p.category || "").toUpperCase() === allFruitCat) &&
-String(p.name || "").toLowerCase().includes(query));
+ isPermanentProduct(p) &&
+ String(p.name || "").toLowerCase().includes(query));
 const grid = document.getElementById("allFruitGrid");
 if(!grid) return;
 grid.innerHTML = list.length ? list.map(renderProductCard).join("") : `<div class="panel">Buah tidak ditemukan.</div>`;
@@ -1897,6 +1842,9 @@ estimated_process:
 
 
 if(!result.success){
+
+orderBtn.disabled = false;
+orderBtn.innerHTML = orderBtn.dataset.oldText || "BUAT PESANAN<br>& LANJUT PEMBAYARAN";
 
 document.getElementById(
 "checkoutMsg"
@@ -3291,19 +3239,6 @@ encodeURIComponent(
 
 
 /* =========================================================
-   ALL FRUITS CONTROLS
-========================================================= */
-document.getElementById("viewAllFruitsBtn")?.addEventListener("click",openAllFruitsPage);
-document.getElementById("backFeaturedBtn")?.addEventListener("click",closeAllFruitsPage);
-document.getElementById("allFruitSearch")?.addEventListener("input",renderAllFruits);
-document.querySelectorAll("[data-all-cat]").forEach(btn=>btn.addEventListener("click",()=>{
- document.querySelectorAll("[data-all-cat]").forEach(x=>x.classList.remove("active"));
- btn.classList.add("active");
- allFruitCat=btn.dataset.allCat;
- renderAllFruits();
-}));
-
-/* =========================================================
    FIREBASE PRODUCTS
 ========================================================= */
 
@@ -3312,7 +3247,6 @@ data => {
 
 products = data || [];
 renderProducts();
-renderAllFruits();
 
 if(!selected)
 restoreDraft();
