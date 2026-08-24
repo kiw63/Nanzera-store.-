@@ -1392,6 +1392,18 @@ saveDraft();
    PRODUCTS
 ========================================================= */
 
+// Permanent products are kept completely separate from normal Fruits.
+// Backward-compatible with older documents that used category: "PERMANENT".
+function isPermanentProduct(p){
+ const type = String(p?.product_type ?? p?.type ?? "").trim().toUpperCase();
+ const category = String(p?.category ?? "").trim().toUpperCase();
+ return p?.isPermanent === true || type === "PERMANENT" || category === "PERMANENT";
+}
+
+function isNormalFruit(p){
+ return !isPermanentProduct(p);
+}
+
 window.renderProductCard = p => {
 
 const stock = Number(p.stock || 0);
@@ -1415,16 +1427,25 @@ ${imageUrl ? `
 <div class="price">${money(p.price)}</div>
 <div class="stock-line">● STOK TERSEDIA: ${stock}</div>
 <div class="product-actions">
-<button class="btn btn-primary" ${out?"disabled":""} onclick="openCheckout(${JSON.stringify(p.id)})">ORDER NOW 🛒</button>
+<button type="button" class="btn btn-primary order-now-btn" ${out?"disabled":""} data-product-id="${safe(p.id)}">ORDER NOW 🛒</button>
 </div>
 </div>
 </article>`;
 };
 
+// Use event delegation so ORDER NOW always works even after realtime re-rendering.
+document.addEventListener("click", event => {
+ const button = event.target.closest(".order-now-btn");
+ if(!button) return;
+ event.preventDefault();
+ const id = button.dataset.productId;
+ if(id) window.openCheckout(id);
+});
+
 window.renderProducts = () => {
 const input = document.getElementById("search");
 const query = (input?.value || "").toLowerCase().trim();
-const list = products.filter(p => Boolean(p.popular) &&
+const list = products.filter(p => isNormalFruit(p) && Boolean(p.popular) &&
 (activeCat === "ALL" || String(p.category || "").toUpperCase() === activeCat) &&
 String(p.name || "").toLowerCase().includes(query));
 const grid = document.getElementById("productGrid");
@@ -1435,7 +1456,7 @@ grid.innerHTML = list.length ? list.map(renderProductCard).join("") : `<div clas
 window.renderAllFruits = () => {
 const input = document.getElementById("allFruitSearch");
 const query = (input?.value || "").toLowerCase().trim();
-const list = products.filter(p =>
+const list = products.filter(p => isNormalFruit(p) &&
 (allFruitCat === "ALL" || String(p.category || "").toUpperCase() === allFruitCat) &&
 String(p.name || "").toLowerCase().includes(query));
 const grid = document.getElementById("allFruitGrid");
