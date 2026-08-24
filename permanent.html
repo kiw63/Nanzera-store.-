@@ -1360,14 +1360,31 @@ ${p.method === "GIFT" ? `<div class="nzr-permanent-method">🎁 Gift</div>` : p.
 </article>`;
 };
 
-// Delegated click handler: survives Firebase realtime re-renders and
-// guarantees the Permanent page uses the same checkout modal.
+// ORDER NOW: bind directly after every Firebase render so Permanent
+// products always open the existing checkout modal.
+function bindPermanentOrderButtons(){
+ const buttons = document.querySelectorAll("#productGrid .order-now-btn, #allFruitGrid .order-now-btn");
+ buttons.forEach(button => {
+   if(button.dataset.checkoutBound === "1") return;
+   button.dataset.checkoutBound = "1";
+   button.addEventListener("click", event => {
+     event.preventDefault();
+     event.stopPropagation();
+     const id = button.dataset.productId;
+     if(id) openCheckout(id);
+   });
+ });
+}
+
+// Fallback for any ORDER NOW button created outside the normal render path.
 document.addEventListener("click", event => {
- const button = event.target.closest(".order-now-btn");
+ const button = event.target?.closest?.(".order-now-btn");
  if(!button) return;
- event.preventDefault();
  const id = button.dataset.productId;
- if(id) window.openCheckout(id);
+ if(id) {
+   event.preventDefault();
+   openCheckout(id);
+ }
 });
 
 window.renderProducts = () => {
@@ -1385,6 +1402,7 @@ if(!grid) return;
 grid.innerHTML = list.length
   ? list.map(renderProductCard).join("")
   : `<div class="panel">Belum ada Permanent Fruit yang tersedia.</div>`;
+bindPermanentOrderButtons();
 };
 
 window.renderAllFruits = () => {
@@ -1396,6 +1414,7 @@ const list = products.filter(p =>
 const grid = document.getElementById("allFruitGrid");
 if(!grid) return;
 grid.innerHTML = list.length ? list.map(renderProductCard).join("") : `<div class="panel">Buah tidak ditemukan.</div>`;
+bindPermanentOrderButtons();
 };
 
 function openAllFruitsPage(){
@@ -1414,7 +1433,7 @@ function closeAllFruitsPage(){
    OPEN CHECKOUT
 ========================================================= */
 
-window.openCheckout = id => {
+function openCheckout(id){
 
 selected =
 products.find(
@@ -1450,7 +1469,9 @@ document.getElementById(
 "checkoutModal"
 ).classList.remove("hidden");
 
-};
+}
+
+window.openCheckout = openCheckout;
 
 
 /* =========================================================
